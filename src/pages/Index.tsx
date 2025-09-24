@@ -1,5 +1,4 @@
 import Header from "@/components/Header";
-import TopBanner from "@/components/TopBanner";
 import HeadlineSection from "@/components/HeadlineSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import TeamRolesSection from "@/components/TeamRolesSection";
@@ -15,7 +14,6 @@ const Index = () => {
   useUtmTracking();
   return (
     <div className="bg-white min-h-screen">
-      <TopBanner />
       <Header />
       <HeadlineSection />
       <FeaturesSection />

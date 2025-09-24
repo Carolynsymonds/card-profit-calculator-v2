@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Calendar, Shield, Smartphone } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
-import TopBanner from "@/components/TopBanner";
 import Footer from "@/components/Footer";
 import FeaturesSection from "@/components/FeaturesSection";
 import FeatureIntroSection from "@/components/FeatureIntroSection";
@@ -91,7 +90,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <TopBanner />
       <Header />
       
       {/* Hero Section */}

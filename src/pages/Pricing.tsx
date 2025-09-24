@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
-import TopBanner from "@/components/TopBanner";
 import Footer from "@/components/Footer";
 import HeroBanner from "@/components/HeroBanner";
 import { siteContent } from "@/config/site-content";
@@ -16,7 +15,6 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <TopBanner />
       <Header />
       
       <div className="container mx-auto px-4 py-16">

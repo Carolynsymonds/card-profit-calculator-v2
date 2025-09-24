@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import Header from "@/components/Header";
-import TopBanner from "@/components/TopBanner";
 import Footer from "@/components/Footer";
 import { siteContent } from "@/config/site-content";
 
@@ -13,7 +12,6 @@ import BenefitsSection from "@/components/BenefitsSection";
 const Features = () => {
   return (
     <div className="min-h-screen bg-white">
-      <TopBanner />
       <Header />
       
       {/* Hero Section */}

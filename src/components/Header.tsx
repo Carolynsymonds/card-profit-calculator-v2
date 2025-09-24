@@ -23,7 +23,7 @@ const Header = () => {
 
   return (
    <header 
-      className={`fixed top-12 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-background/95 backdrop-blur-md shadow-sm border-b' 
           : 'bg-transparent'
@@ -41,55 +41,10 @@ const Header = () => {
                 />
             </Link>
             
-            {/* Navigation Menu */}
-            <nav className="hidden md:flex items-center gap-6">
-              {/* Solution Link */}
-               <Button 
-                 onClick={() => navigateWithUtm('/features')}
-                 variant="ghost" 
-                 className="text-foreground font-sans text-sm"
-               >
-                 Features
-               </Button>
-
-              {/* Pricing Link */}
-              <Button 
-                onClick={() => navigateWithUtm('/pricing')}
-                variant="ghost" 
-                className="text-foreground font-sans text-sm"
-              >
-                Pricing
-              </Button>
-            </nav>
           </div>
 
           {/* Right Side - User Actions */}
           <div className="flex items-center gap-4">
-            {/* Desktop Buttons - Side by side */}
-            <div className="hidden md:flex items-center gap-3">
-              <Button 
-                onClick={() => navigateWithUtm('/signup')}
-                className="px-6 py-2 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
-              >
-                Try for free
-              </Button>
-              
-              <Button 
-                onClick={() => navigateWithUtm('/login')}
-                variant="ghost"
-                className="px-6 py-2 text-sm font-medium text-foreground transition-colors"
-              >
-                Log in
-              </Button>
-            </div>
-
-            {/* Mobile - Try for free button next to hamburger */}
-            <Button 
-              onClick={() => navigateWithUtm('/signup')}
-              className="md:hidden px-4 py-2 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
-            >
-              Try for free
-            </Button>
             
             {/* Mobile Hamburger Menu */}
             <Sheet>
@@ -104,7 +59,7 @@ const Header = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-full bg-background [&>button:last-child]:hidden">
                 <div className="flex flex-col h-full">
-                  {/* Header with logo, Try for free button, and close button */}
+                  {/* Header with logo and close button */}
                   <div className="flex items-center justify-between p-2">
                     {/* Footer logo on the left */}
                     <Link to="/" className="flex items-center">
@@ -115,15 +70,8 @@ const Header = () => {
                       />
                     </Link>
                     
-                    {/* Try for free button and close button on the right */}
+                    {/* Close button on the right */}
                     <div className="flex items-center gap-2">
-                      <Button 
-                        onClick={() => navigateWithUtm('/signup')}
-                        className="px-4 py-1.5 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
-                      >
-                        Try for free
-                      </Button>
-                      
                       <SheetClose asChild>
                         <Button 
                           variant="ghost" 
@@ -136,34 +84,6 @@ const Header = () => {
                     </div>
                   </div>
                   
-                  {/* Navigation Links */}
-                  <div className="flex flex-col gap-3 pt-4 pl-2 pr-2">
-                    <Button 
-                      onClick={() => navigateWithUtm('/features')}
-                      variant="ghost" 
-                      className="w-full justify-start text-foreground font-sans text-lg py-2 px-0 pl-0"
-                    >
-                      Features
-                    </Button>
-                    
-                    <Button 
-                      onClick={() => navigateWithUtm('/pricing')}
-                      variant="ghost" 
-                      className="w-full justify-start text-foreground font-sans text-lg py-2 px-0 pl-0"
-                    >
-                      Pricing
-                    </Button>
-                    
-                    <div className="border-t pt-3">
-                      <Button 
-                        onClick={() => navigateWithUtm('/login')}
-                        variant="ghost"
-                        className="w-full justify-start text-foreground text-lg py-2 px-0 pl-0"
-                      >
-                        Log in
-                      </Button>
-                    </div>
-                  </div>
                 </div>
               </SheetContent>
             </Sheet>

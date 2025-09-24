@@ -8,7 +8,6 @@ import { useStaticContent } from "@/hooks/useStaticContent";
 import { supabase } from "@/integrations/supabase/client";
 import { siteContent } from "@/config/site-content";
 import Header from "@/components/Header";
-import TopBanner from "@/components/TopBanner";
 import Footer from "@/components/Footer";
 import ContactMap from "@/components/ContactMap";
 
@@ -81,7 +80,6 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <TopBanner />
       <Header />
       <main className="container mx-auto px-4 py-24">
         <div className="text-center mb-8 mt-3">
