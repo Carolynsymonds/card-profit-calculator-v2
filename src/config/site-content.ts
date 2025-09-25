@@ -6,15 +6,15 @@ export const siteContent = {
 
   // Theme Configuration
   theme: {
-    primaryColor: "#f54929", // Red-orange for NIOAI
+    primaryColor: "#fe714e", // Orange for Tap Wise
   },
 
   // Brand and Logo
   brand: {
-    name: "NIOAI",
-    primaryColor: "10 91% 56%",
-    logoUrl: "https://brahykobgryxdjihihrk.supabase.co/storage/v1/object/public/site-images/1756320849644-5bsklr1rk0v.png",
-    footerLogoUrl: "https://brahykobgryxdjihihrk.supabase.co/storage/v1/object/public/site-images/1756321074998-qusl0p7uk4.png"
+    name: "Tap Wise",
+    primaryColor: "15 97% 65%",
+    logoUrl: "/lovable-uploads/logo.png",
+    footerLogoUrl: "/lovable-uploads/logo_footer.png"
   },
 
   // Headline Section
@@ -38,7 +38,7 @@ export const siteContent = {
   // Features Section
   features: {
     title: "Practical AI Training for Restaurants",
-    subtitle: "Explore how NIOAI transforms restaurant operations.",
+    subtitle: "Explore how Tap Wise transforms restaurant operations.",
     items: [
       {
         icon: "/lovable-uploads/96842b8b-7358-4847-80d4-523b2f8a7914.png",
@@ -87,7 +87,7 @@ export const siteContent = {
   // Feature Intro Section
   featureIntro: {
     title: "Unlock the Power of AI in Foodservice",
-    description: "NIOAI equips restauranters with essential AI skills, enabling smarter decision-making and operational efficiency."
+    description: "Tap Wise equips restauranters with essential AI skills, enabling smarter decision-making and operational efficiency."
   },
 
   // Split Screen Section
@@ -211,7 +211,7 @@ export const siteContent = {
 
   // Features Page
   featuresPage: {
-    title: "Everything NIOAI Offers",
+    title: "Everything Tap Wise Offers",
     subtitle: "Comprehensive tools and features designed specifically for nioai users",
     benefits: [
       {
@@ -267,7 +267,7 @@ export const siteContent = {
           },
           {
             name: "Seamless Integrations",
-            description: "Integrate NIOAI with your existing POS and management systems for a smooth workflow that enhances productivity.",
+            description: "Integrate Tap Wise with your existing POS and management systems for a smooth workflow that enhances productivity.",
             icon: "Settings"
           },
           {
@@ -356,7 +356,7 @@ export const siteContent = {
 
     // Top Banner
   topBanner: {
-    text: "Try NIOAI FREE for 30 days",
+    text: "Try Tap Wise FREE for 30 days",
     buttonText: "Join"
   },
   

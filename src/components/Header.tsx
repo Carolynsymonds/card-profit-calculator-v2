@@ -37,10 +37,27 @@ const Header = () => {
               <img 
                 src={siteContent.brand.logoUrl}  
                 alt={`${siteContent.brand.name} Logo`} 
-                className="h-32 w-auto hover:opacity-80 transition-opacity"
+                className="h-16 w-auto hover:opacity-80 transition-opacity"
                 />
             </Link>
             
+            {/* Desktop Navigation Links */}
+            <nav className="hidden md:flex items-center gap-6">
+              <Button
+                variant="ghost"
+                className="text-foreground font-sans text-sm hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-primary"
+                onClick={() => navigateWithUtm('/features')}
+              >
+                Features
+              </Button>
+              <Button
+                variant="ghost"
+                className="text-foreground font-sans text-sm hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-primary"
+                onClick={() => navigateWithUtm('/pricing')}
+              >
+                Pricing
+              </Button>
+            </nav>
           </div>
 
           {/* Right Side - User Actions */}
@@ -82,6 +99,30 @@ const Header = () => {
                         </Button>
                       </SheetClose>
                     </div>
+                  </div>
+                  
+                  {/* Mobile Navigation Links */}
+                  <div className="flex flex-col gap-4 px-4 py-6">
+                    <Button
+                      variant="ghost"
+                      className="text-foreground font-sans text-sm justify-start hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-primary"
+                      onClick={() => {
+                        navigateWithUtm('/features');
+                        document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
+                      }}
+                    >
+                      Features
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="text-foreground font-sans text-sm justify-start hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-primary"
+                      onClick={() => {
+                        navigateWithUtm('/pricing');
+                        document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
+                      }}
+                    >
+                      Pricing
+                    </Button>
                   </div>
                   
                 </div>

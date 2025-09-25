@@ -9,11 +9,11 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* PrepShiftPro Brand Colors */
-    --background: 142 20% 97%; /* Soft white #F2F8F3 */
+    --background: 150 14% 97%; /* Light gray #f7f9f8 */
     --foreground: 210 20% 15%;
     
-    /* Red-orange Primary - Configurable via site-content.ts */
-    --primary: 10 91% 56%; /* Red-orange for NIOAI */
+    /* Orange Primary - Configurable via site-content.ts */
+    --primary: 15 97% 65%; /* Orange #fe714e for Tap Wise */
     --primary-foreground: 0 0% 100%;
     
     /* Deep Navy */
@@ -60,7 +60,7 @@ All colors MUST be HSL.
 
     --border: 142 20% 90%;
     --input: 142 20% 90%;
-    --ring: 10 91% 56%;
+    --ring: 15 97% 65%;
 
     --radius: 0.75rem;
     

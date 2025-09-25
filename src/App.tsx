@@ -38,7 +38,7 @@ const App = () => (
         <UtmTracker />
         <ScrollToTop />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Index />} />
           <Route path="/free-plan" element={<Index />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/features" element={<Features />} />

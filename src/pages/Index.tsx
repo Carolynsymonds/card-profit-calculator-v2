@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
-import HeadlineSection from "@/components/HeadlineSection";
+import UploadMenuHeadline2 from "@/components/UploadMenuHeadline2";
+import SolarStyleEstimateCard from "@/components/SolarStyleEstimateCard";
 import FeaturesSection from "@/components/FeaturesSection";
 import TeamRolesSection from "@/components/TeamRolesSection";
 import FeatureIntroSection from "@/components/FeatureIntroSection";
@@ -15,12 +16,10 @@ const Index = () => {
   return (
     <div className="bg-white min-h-screen">
       <Header />
-      <HeadlineSection />
-      <FeaturesSection />
-      <TeamRolesSection />
-      <FeatureIntroSection />
-      <SplitScreenSection />
-      <AllFeaturesSection />
+      <UploadMenuHeadline2 />
+      <SolarStyleEstimateCard />
+      
+      
       <Footer />
     </div>
   );
