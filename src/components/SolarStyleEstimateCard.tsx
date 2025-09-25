@@ -121,6 +121,7 @@ export type Provider = {
   name: string;
   products?: string[];
   deviceCostGBP: number;      // upfront device price
+  transactionFeeRate: number; // transaction fee rate as percentage (e.g., 1.75 for 1.75%)
   monthlyFeeGBP: number;      // recurring monthly fee
   fees: FeeByChannel;         // % and fixed fees by channel
   payoutDays?: number | null;
@@ -219,6 +220,7 @@ interface CardReader extends CostBreakdown {
   deviceCostGBP: number;
   url?: string;
   imageUrl?: string;
+  transactionFeeRate?: number; // Original transaction fee rate from provider
 }
 
 const PROVIDERS: Provider[] = [
@@ -226,6 +228,7 @@ const PROVIDERS: Provider[] = [
     id: "tide",
     name: "Tide Card Reader",
     deviceCostGBP: 49,
+    transactionFeeRate: 1.50,
     monthlyFeeGBP: 0,
     fees: {
       pct: { inPerson: 0.015, online: 0.022, phone: 0.022 },
@@ -240,6 +243,7 @@ const PROVIDERS: Provider[] = [
     id: "barclaycard-smartpay-touch",
     name: "Barclaycard Smartpay Touch",
     deviceCostGBP: 0,
+    transactionFeeRate: 1.60,
     monthlyFeeGBP: 29,
     fees: {
       pct: { inPerson: 0.016, online: 0.022, phone: 0.022 },
@@ -254,6 +258,7 @@ const PROVIDERS: Provider[] = [
     name: "SumUp Air",
     deviceCostGBP: 25,
     monthlyFeeGBP: 0,
+    transactionFeeRate: 1.75,
     fees: {
       pct: { inPerson: 0.0169, online: 0.025, phone: 0.025 },
       fixed: { inPerson: 0, online: 0, phone: 0 }
@@ -265,6 +270,7 @@ const PROVIDERS: Provider[] = [
     id: "square",
     name: "Square",
     deviceCostGBP: 99,
+    transactionFeeRate: 1.75,
     monthlyFeeGBP: 0,
     fees: {
       pct: { inPerson: 0.0175, online: 0.0175, phone: 0.0175 },
@@ -279,6 +285,7 @@ const PROVIDERS: Provider[] = [
     name: "Zettle Payment Terminal",
     deviceCostGBP: 149,
     monthlyFeeGBP: 0,
+    transactionFeeRate: 1.75,
     fees: {
       pct: { inPerson: 0.0175, online: 0.025, phone: 0.025 },
       fixed: { inPerson: 0, online: 0, phone: 0 }
@@ -393,12 +400,14 @@ export default function SolarStyleEstimateCard() {
         // Add isLowest flag and convert to CardReader format
         const cardReaders: CardReader[] = costBreakdowns.map((breakdown, index) => {
           const provider = PROVIDERS.find(p => p.id === breakdown.providerId);
+          console.log(`Provider ${provider?.name}: transactionFeeRate = ${provider?.transactionFeeRate}`);
           return {
             ...breakdown,
             isLowest: index === 0, // First item (cheapest) is marked as lowest
             deviceCostGBP: provider ? provider.deviceCostGBP : 0,
             url: provider?.url,
-            imageUrl: provider?.imageUrl
+            imageUrl: provider?.imageUrl,
+            transactionFeeRate: provider?.transactionFeeRate || 0 // Use the direct transaction fee rate
           };
         });
 
@@ -460,8 +469,7 @@ export default function SolarStyleEstimateCard() {
             {/* Stepper Header */}
             <div className="text-center mb-8">
               <h2 className="text-xl md:text-2xl font-extrabold tracking-[-0.02em] text-slate-800 m-auto">
-              We’ll find your best card machine rates with trusted providers in just 3 simple steps.               </h2>
-            
+              Get your personalised Card Machine Report – compare top readers and find your best rates in 3 simple steps.              </h2>         
             </div>
 
             {/* Stepper Progress */}
@@ -598,14 +606,14 @@ export default function SolarStyleEstimateCard() {
                   type="button"
                   onClick={handleNext}
                   disabled={!canProceed}
-                  className={[
-                    "px-6 py-2 text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300",
-                    "focus:outline-none",
-                    canProceed
-                      ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                      : "bg-slate-100 text-slate-400 cursor-not-allowed",
-                  ].join(" ")}
-                  style={{ borderRadius: '32px' }}
+                         className={[
+                           "px-6 text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300",
+                           "focus:outline-none",
+                           canProceed
+                             ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+                             : "bg-slate-100 text-slate-400 cursor-not-allowed",
+                         ].join(" ")}
+                         style={{ borderRadius: '32px', height: '3rem' }}
                 >
                   Next <ChevronRight className="ml-2 h-4 w-4 inline" />
                 </button>
@@ -614,14 +622,14 @@ export default function SolarStyleEstimateCard() {
                   type="button"
                   onClick={onSubmit}
                   disabled={!canSubmit || isCalculating}
-                  className={[
-                    "px-6 py-2 text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300",
-                    "focus:outline-none",
-                    canSubmit && !isCalculating
-                      ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                      : "bg-slate-100 text-slate-400 cursor-not-allowed",
-                  ].join(" ")}
-                  style={{ borderRadius: '32px' }}
+                         className={[
+                           "px-6 text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300",
+                           "focus:outline-none",
+                           canSubmit && !isCalculating
+                             ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+                             : "bg-slate-100 text-slate-400 cursor-not-allowed",
+                         ].join(" ")}
+                         style={{ borderRadius: '32px', height: '3rem' }}
                 >
                   {isCalculating ? "Calculating..." : "Calculate my savings"} 
                   {!isCalculating && <ChevronRight className="ml-2 h-4 w-4 inline" />}
@@ -680,7 +688,7 @@ export default function SolarStyleEstimateCard() {
 
                     {/* Right side - Content */}
                     <div className="flex-1 min-w-[150px]">
-                      <div className="mb-4 text-center">
+                      <div className="mb-4 text-center hidden">
                         <div className="text-3xl font-extrabold text-slate-900 mb-1">
                           £{reader.totalMonthly.toFixed(0)}
                         </div>
@@ -689,7 +697,7 @@ export default function SolarStyleEstimateCard() {
 
                       <div className="grid grid-cols-4 gap-4 mb-6">
                         <div className="text-center">
-                          <div className="text-sm text-slate-500 mb-1">Device cost</div>
+                          <div className="text-sm text-slate-500 mb-1">Card Machine Cost</div>
                           <div className="text-lg font-semibold text-slate-800">£{reader.deviceCostGBP || 0}</div>
                         </div>
                         <div className="text-center">
@@ -697,8 +705,8 @@ export default function SolarStyleEstimateCard() {
                           <div className="text-lg font-semibold text-slate-800">{(reader.blendedPct * 100).toFixed(2)}%</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-sm text-slate-500 mb-1">Transaction fee</div>
-                          <div className="text-lg font-semibold text-slate-800">£{reader.percentFeeCost.toFixed(0)}</div>
+                          <div className="text-sm text-slate-500 mb-1">Transaction Fee</div>
+                          <div className="text-lg font-semibold text-slate-800">{(reader.transactionFeeRate || 0).toFixed(2)}%</div>
                         </div>
                         <div className="text-center">
                           <div className="text-sm text-slate-500 mb-1">Monthly fee</div>
@@ -712,8 +720,8 @@ export default function SolarStyleEstimateCard() {
                             window.open(reader.url, "_blank");
                           }
                         }}
-                        className="w-full px-6 py-2 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
-                        style={{ borderRadius: '32px' }}
+                        className="w-full px-6 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
+                        style={{ borderRadius: '32px', height: '3rem' }}
                       >
                         View Deals
                       </button>

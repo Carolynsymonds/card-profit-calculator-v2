@@ -82,7 +82,7 @@ const UploadMenuHeadline2 = ({ onButtonClick }: { onButtonClick?: (buttonName: s
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left: Text Content */}
             <div className="space-y-6 text-center md:text-left order-1 md:order-1">
-              <p className="text-3xl md:text-4xl lg:text-4xl font-extrabold tracking-[-0.02em] text-foreground">
+              <p className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-[-0.02em] text-foreground">
               Find the best card machine for your business with <span className="text-primary">Tap Wise advice</span> 
               </p>
               <p className="text-lg md:text-lg text-muted-foreground leading-relaxed font-light">
@@ -90,8 +90,8 @@ const UploadMenuHeadline2 = ({ onButtonClick }: { onButtonClick?: (buttonName: s
               <div className="flex items-center gap-2 justify-center md:justify-start">
                 <Button
                   onClick={handleSignupClick}
-                  className="px-6 py-2 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
-                  style={{ borderRadius: '32px' }}
+                  className="px-6 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
+                  style={{ borderRadius: '32px', height: '3rem' }}
                 >
                   Get started now
                 </Button>
