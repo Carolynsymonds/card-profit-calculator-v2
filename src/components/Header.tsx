@@ -42,26 +42,60 @@ const Header = () => {
             </Link>
             
             {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="items-center gap-6">
               <Button
                 variant="ghost"
                 className="text-foreground font-sans text-sm hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-primary"
-                onClick={() => navigateWithUtm('/features')}
+                onClick={() => navigateWithUtm('/how-it-works')}
               >
-                Features
+                How it works
               </Button>
               <Button
                 variant="ghost"
                 className="text-foreground font-sans text-sm hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-primary"
-                onClick={() => navigateWithUtm('/pricing')}
+                onClick={() => navigateWithUtm('/compare-card-readers')}
               >
-                Pricing
+                Card Machines
               </Button>
             </nav>
           </div>
 
           {/* Right Side - User Actions */}
           <div className="flex items-center gap-4">
+            
+            {/* Awards Section */}
+            <ul className="hidden lg:flex items-center gap-4 mr-4">
+              <li className="text-sm">
+                As featured in:
+              </li>
+              <li>
+                <img 
+                  src="https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/wp-content/uploads/2025/06/the-guardian-new-2018.svg?width=91&height=30&format=webply" 
+                  alt="The Guardian" 
+                  width="91" 
+                  height="30" 
+                  className="h-6 w-auto opacity-70 hover:opacity-100 transition-opacity"
+                />
+              </li>
+              <li>
+                <img 
+                  src="https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/wp-content/uploads/2025/06/business-insider-seeklogo.svg?width=40&height=30&format=webply" 
+                  alt="Business Insider" 
+                  width="40" 
+                  height="60" 
+                  className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity"
+                />
+              </li>
+              <li>
+                <img 
+                  src="https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/wp-content/uploads/2025/06/The_Telegraph.svg?width=184&height=30&format=webply" 
+                  alt="The Telegraph" 
+                  width="184" 
+                  height="30" 
+                  className="h-6 w-auto opacity-70 hover:opacity-100 transition-opacity"
+                />
+              </li>
+            </ul>
             
             {/* Mobile Hamburger Menu */}
             <Sheet>
@@ -107,7 +141,7 @@ const Header = () => {
                       variant="ghost"
                       className="text-foreground font-sans text-sm justify-start hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-primary"
                       onClick={() => {
-                        navigateWithUtm('/features');
+                        navigateWithUtm('/how-it-works');
                         document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
                       }}
                     >

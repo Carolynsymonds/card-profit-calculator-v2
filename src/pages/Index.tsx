@@ -1,7 +1,9 @@
 import Header from "@/components/Header";
 import UploadMenuHeadline2 from "@/components/UploadMenuHeadline2";
 import SolarStyleEstimateCard from "@/components/SolarStyleEstimateCard";
-import FeaturesSection from "@/components/FeaturesSection";
+import WhyInvestSolar from "@/components/WhyInvestSolar";
+import MassiveBenefits2025 from "@/components/MassiveBenefits2025";
+import ThreeSimpleSteps from "@/components/ThreeSimpleSteps";
 import TeamRolesSection from "@/components/TeamRolesSection";
 import FeatureIntroSection from "@/components/FeatureIntroSection";
 import SplitScreenSection from "@/components/SplitScreenSection";
@@ -18,8 +20,9 @@ const Index = () => {
       <Header />
       <UploadMenuHeadline2 />
       <SolarStyleEstimateCard />
-      
-      
+      <WhyInvestSolar />
+      <ThreeSimpleSteps />
+      <MassiveBenefits2025 />
       <Footer />
     </div>
   );

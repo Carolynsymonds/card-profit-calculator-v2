@@ -14,6 +14,7 @@ import Inventory from "./pages/Inventory";
 import InventoryAnalytics from "./pages/InventoryAnalytics";
 import Pricing from "./pages/Pricing";
 import Features from "./pages/Features";
+import CompareCardReaders from "./pages/CompareCardReaders";
 import Contact from "./pages/Contact";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
@@ -41,7 +42,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/free-plan" element={<Index />} />
           <Route path="/pricing" element={<Pricing />} />
-          <Route path="/features" element={<Features />} />
+          <Route path="/how-it-works" element={<Features />} />
+          <Route path="/compare-card-readers" element={<CompareCardReaders />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

@@ -6,97 +6,45 @@ interface FooterProps {
 }
 
 const Footer = ({ variant = "default" }: FooterProps) => {
-  const isWhite = variant === "white";
-  
   return (
-    <footer className={`py-16 rounded-[1.5rem] ${isWhite ? "bg-white" : "bg-background"}`}>
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12">
-          {/* Brand Column */}
-          <div className="lg:col-span-2 space-y-4">
+    <footer className="bg-[#f7f9f8] w-full">
+      <div className="mx-auto max-w-6xl px-6 py-8">
+        {/* Top row with logo/copyright on left, navigation on right */}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-6 mb-6">
+          {/* Left side - Brand and Copyright */}
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
               <img src={siteContent.brand.footerLogoUrl} alt={`${siteContent.brand.name} Logo`} className="w-16 h-16" />
             </div>
-            <p className="text-sm" style={{ color: '#0000008a' }}>
+            <p className="text-xs" style={{ color: '#0000008a' }}>
                © 2025 {siteContent.brand.name}, Inc.
             </p>
           </div>
           
-          {/* Company Column */}
-          <div className="lg:col-span-2 space-y-4">
-            <nav>
-              <ul className="space-y-3">
-                <li>
-                  <a 
-                    href="/" 
-                    className="block text-footer-custom-text hover:text-footer-custom-text hover:underline hover:decoration-primary transition-colors duration-200"
-                  >
-                    <span className="InlineTextLink_linkContent__SYI4r">
-                      <span className="typography_typography__Exx2D text-sm">
-                        Home
-                      </span>
-                    </span>
-                  </a>
-                </li>
-                <li>
-                  <Link 
-                    to="/pricing"
-                    className="block text-footer-custom-text hover:text-footer-custom-text hover:underline hover:decoration-primary transition-colors duration-200"
-                  >
-                    <span className="InlineTextLink_linkContent__SYI4r">
-                      <span className="typography_typography__Exx2D text-sm">
-                        Pricing
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/contact"
-                    className="block text-footer-custom-text hover:text-footer-custom-text hover:underline hover:decoration-primary transition-colors duration-200"
-                  >
-                    <span className="InlineTextLink_linkContent__SYI4r">
-                      <span className="typography_typography__Exx2D text-sm">
-                        Contact Us
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-          </div>
-          
-          {/* Legal Column */}
-          <div className="lg:col-span-2 space-y-4">
-            <nav>
-              <ul className="space-y-3">
-                <li>
-                  <Link 
-                    to="/privacy-policy" 
-                    className="block text-footer-custom-text hover:text-footer-custom-text hover:underline hover:decoration-primary transition-colors duration-200"
-                  >
-                    <span className="InlineTextLink_linkContent__SYI4r">
-                      <span className="typography_typography__Exx2D text-sm">
-                        Privacy Policy
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/terms-conditions" 
-                    className="block text-footer-custom-text hover:text-footer-custom-text hover:underline hover:decoration-primary transition-colors duration-200"
-                  >
-                    <span className="InlineTextLink_linkContent__SYI4r">
-                      <span className="typography_typography__Exx2D text-sm">
-                        Terms & Conditions
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-          </div>
+          {/* Right side - Navigation links */}
+          <nav className="flex flex-wrap gap-6">
+            <Link 
+              to="/privacy-policy" 
+              className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            >
+              Privacy Policy
+            </Link>
+           
+            <Link 
+              to="/terms-conditions" 
+              className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            >
+              Terms of Use
+            </Link>
+          </nav>
+        </div>
+
+        {/* Divider line */}
+        <hr className="border-gray-200 mb-6" />
+
+        {/* Bottom legal row - Company details */}
+        <div className="text-xs text-gray-500">
+          Registered Office: 1st & 2nd Floors, Wenlock Works, 1A Shepherdess Walk, London, N1 7QE, United Kingdom. Registered in England & Wales (no. 06951544)
         </div>
       </div>
     </footer>

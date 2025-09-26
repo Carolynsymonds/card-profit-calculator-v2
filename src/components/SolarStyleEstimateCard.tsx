@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState, useMemo } from "react";
 import { Search, ChevronRight, CreditCard, Globe, Phone, Check, ArrowLeft } from "lucide-react";
+import { useCountUpCurrency, useCountUpPercentage } from "@/hooks/useCountUp";
 
 // --- Brand palette (inline so you don't need Tailwind config) ---
 const BRAND_ORANGE = "#fc7b4f"; // border, icon, helper text
@@ -22,6 +23,111 @@ function parseGBP(input) {
   if (digits === "") return ""; // keep empty when user deletes all
   const n = Number(digits);
   return Number.isNaN(n) ? "" : n;
+}
+
+// Component for animated summary
+function AnimatedSummary({ annualRevenueNum, results }) {
+  return (
+    <p className="text-slate-600 font-light leading-relaxed">
+      Based on your monthly revenue of £{(annualRevenueNum / 12).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} and {results[0]?.estTransactions?.toLocaleString()} estimated transactions
+    </p>
+  );
+}
+
+// Component for animated result cards
+function AnimatedResultCard({ reader, index }) {
+  const monthlyTotal = useCountUpCurrency(reader.totalMonthly, { delay: index * 200 });
+
+  return (
+    <div
+      className={`relative bg-white rounded-2xl border-2 p-6 shadow-lg transition-all duration-300 hover:shadow-xl ${
+        reader.isLowest 
+          ? 'border-green-500 ring-4 ring-green-100' 
+          : 'border-slate-200 hover:border-slate-300'
+      }`}
+    >
+      {reader.isLowest && (
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+          <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+            Best Value
+          </span>
+        </div>
+      )}
+      
+      <div className="flex items-center gap-6">
+        {/* Left side - Name and Image */}
+        <div className="flex-shrink-0 text-center max-w-[150px] min-w-[150px]">
+          <img
+            src={reader.imageUrl || "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png"}
+            alt={`${reader.providerName} card reader`}
+            className="w-24 h-24 object-contain mx-auto mb-3"
+            onError={(e) => {
+              console.log(`Failed to load image for ${reader.providerName}:`, reader.imageUrl);
+              e.currentTarget.src = "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png";
+            }}
+            onLoad={() => {
+              console.log(`Successfully loaded image for ${reader.providerName}:`, reader.imageUrl);
+            }}
+          />
+          <h4 className="text-lg font-semibold text-slate-800">{reader.providerName}</h4>
+        </div>
+
+        {/* Right side - Content */}
+        <div className="flex-1 min-w-[150px]">
+          <div className="mb-4 text-center">
+            <div className="text-3xl font-extrabold text-slate-900 mb-1">
+              £{monthlyTotal.formatted}
+            </div>
+            <div className="text-sm text-slate-500">total per month</div>
+          </div>
+
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="text-center">
+              <div className="text-sm text-slate-500 mb-1">Card Machine Cost</div>
+              <div className="text-lg font-semibold text-slate-800">£{reader.deviceCostGBP || 0}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-slate-500 mb-1">Blended rate</div>
+              <div className="text-lg font-semibold text-slate-800">{(reader.blendedPct * 100).toFixed(2)}%</div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-slate-500 mb-1">Transaction Fee</div>
+              <div className="text-lg font-semibold text-slate-800">{(reader.transactionFeeRate || 0).toFixed(2)}%</div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-slate-500 mb-1">Monthly fee</div>
+              <div className="text-lg font-semibold text-slate-800">£{reader.monthlyFee}</div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              if (reader.url) {
+                window.open(reader.url, "_blank");
+              }
+            }}
+            className="w-full px-6 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
+            style={{ borderRadius: '32px', height: '3rem' }}
+          >
+            View Deals
+          </button>
+          
+          {/* Informative text about device cost amortization */}
+          <div className="mt-3 text-xs text-slate-500 leading-relaxed">
+            {(() => {
+              const currency = "£";
+              const deviceCost = reader.deviceCostGBP || 49;
+              const months = 24;
+              const devicePerMonth = deviceCost / months;
+              const monthlyFeesOnly = reader.totalMonthly - devicePerMonth;
+              
+              return `This price includes ${currency}${devicePerMonth.toFixed(2)} per month to amortise the ${currency}${deviceCost} device over ${months} months. After that, your monthly cost drops to ${currency}${monthlyFeesOnly.toFixed(2)}.`;
+            })()}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function CurrencyInput({
@@ -166,38 +272,62 @@ export type CostBreakdown = {
   totalMonthly: number;
 };
 
+type Mix = { inPerson?: number; online?: number; phone?: number };
+
+function normaliseMix(mix?: Mix): Required<Mix> {
+  const raw = {
+    inPerson: mix?.inPerson ?? 0,
+    online: mix?.online ?? 0,
+    phone: mix?.phone ?? 0,
+  };
+  const sum = raw.inPerson + raw.online + raw.phone;
+  if (sum > 0) {
+    return {
+      inPerson: raw.inPerson / sum,
+      online: raw.online / sum,
+      phone: raw.phone / sum,
+    };
+  }
+  // sensible default: 100% in-person
+  return { inPerson: 1, online: 0, phone: 0 };
+}
+
 export function computeCost(p: Provider, inputs: Inputs): CostBreakdown {
   const monthlyRevenue = inputs.annualRevenueGBP / 12;
-  const estTransactions = Math.max(1, Math.round(monthlyRevenue / inputs.avgTransactionGBP));
-  const mix = clampMix(inputs.mix);
+  const avgTxn = Math.max(0.01, inputs.avgTransactionGBP); // guard divide-by-zero
 
-  // Blended percentage
+  const mix = normaliseMix(inputs.mix);
+
+  // Use FLOAT transaction count for cost math (do not round)
+  const estTransactionsFloat = monthlyRevenue / avgTxn;
+
+  // Blended percentage (fees are decimals e.g., 0.0175)
   const pct =
     (p.fees.pct.inPerson || 0) * mix.inPerson +
     (p.fees.pct.online || 0) * mix.online +
     (p.fees.pct.phone || 0) * mix.phone;
 
-  // Blended fixed fee per transaction
+  // Blended fixed per-transaction (in GBP)
   const fixed =
     (p.fees.fixed.inPerson || 0) * mix.inPerson +
     (p.fees.fixed.online || 0) * mix.online +
     (p.fees.fixed.phone || 0) * mix.phone;
 
   const percentFeeCost = monthlyRevenue * pct;
-  const fixedFeeCost = estTransactions * fixed;
-  const monthlyFee = p.monthlyFeeGBP || 0;
-  const deviceAmortised =
-    inputs.amortiseMonths && inputs.amortiseMonths > 0
-      ? p.deviceCostGBP / inputs.amortiseMonths
-      : 0;
+  const fixedFeeCost   = estTransactionsFloat * fixed;
 
+  const monthlyFee     = p.monthlyFeeGBP || 0;
+  const months         = inputs.amortiseMonths && inputs.amortiseMonths > 0 ? inputs.amortiseMonths : 0;
+  const deviceAmortised = months ? (p.deviceCostGBP || 0) / months : 0;
+
+  console.log(`percentFeeCost: ${percentFeeCost}, fixedFeeCost: ${fixedFeeCost}, monthlyFee: ${monthlyFee}, deviceAmortised: ${deviceAmortised}`);
   const totalMonthly = percentFeeCost + fixedFeeCost + monthlyFee + deviceAmortised;
 
   return {
     providerId: p.id,
     providerName: p.name,
     monthlyRevenue,
-    estTransactions,
+    estTransactions: estTransactionsFloat,     // keep float for accuracy; round only for UI
     blendedPct: pct,
     blendedFixed: fixed,
     percentFeeCost,
@@ -465,7 +595,7 @@ export default function SolarStyleEstimateCard() {
         
         {!results ? (
           // Form Section with Stepper
-          <div>
+          <div className="py-2 ">
             {/* Stepper Header */}
             <div className="text-center mb-8">
               <h2 className="text-xl md:text-2xl font-extrabold tracking-[-0.02em] text-slate-800 m-auto">
@@ -645,89 +775,12 @@ export default function SolarStyleEstimateCard() {
               <h3 className="text-2xl md:text-3xl font-extrabold tracking-[-0.02em] text-slate-800 mb-4">
                 Your Card Reader Comparison
               </h3>
-              <p className="text-slate-600 font-light leading-relaxed">
-                Based on your monthly revenue of £{(annualRevenueNum / 12).toLocaleString()} and {results[0]?.estTransactions?.toLocaleString()} estimated transactions
-              </p>
+              <AnimatedSummary annualRevenueNum={annualRevenueNum} results={results} />
             </div>
 
             <div className="space-y-6">
               {results.map((reader, index) => (
-                <div
-                  key={reader.providerName}
-                  className={`relative bg-white rounded-2xl border-2 p-6 shadow-lg transition-all duration-300 hover:shadow-xl ${
-                    reader.isLowest 
-                      ? 'border-green-500 ring-4 ring-green-100' 
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  {reader.isLowest && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                        Best Value
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center gap-6">
-                      {/* Left side - Name and Image */}
-                      <div className="flex-shrink-0 text-center max-w-[150px] min-w-[150px]">
-                        <img
-                          src={reader.imageUrl || "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png"}
-                          alt={`${reader.providerName} card reader`}
-                          className="w-24 h-24 object-contain mx-auto mb-3"
-                          onError={(e) => {
-                            console.log(`Failed to load image for ${reader.providerName}:`, reader.imageUrl);
-                            e.currentTarget.src = "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png";
-                          }}
-                          onLoad={() => {
-                            console.log(`Successfully loaded image for ${reader.providerName}:`, reader.imageUrl);
-                          }}
-                        />
-                        <h4 className="text-lg font-semibold text-slate-800">{reader.providerName}</h4>
-                      </div>
-
-                    {/* Right side - Content */}
-                    <div className="flex-1 min-w-[150px]">
-                      <div className="mb-4 text-center hidden">
-                        <div className="text-3xl font-extrabold text-slate-900 mb-1">
-                          £{reader.totalMonthly.toFixed(0)}
-                        </div>
-                        <div className="text-sm text-slate-500">total per month</div>
-                      </div>
-
-                      <div className="grid grid-cols-4 gap-4 mb-6">
-                        <div className="text-center">
-                          <div className="text-sm text-slate-500 mb-1">Card Machine Cost</div>
-                          <div className="text-lg font-semibold text-slate-800">£{reader.deviceCostGBP || 0}</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-sm text-slate-500 mb-1">Blended rate</div>
-                          <div className="text-lg font-semibold text-slate-800">{(reader.blendedPct * 100).toFixed(2)}%</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-sm text-slate-500 mb-1">Transaction Fee</div>
-                          <div className="text-lg font-semibold text-slate-800">{(reader.transactionFeeRate || 0).toFixed(2)}%</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-sm text-slate-500 mb-1">Monthly fee</div>
-                          <div className="text-lg font-semibold text-slate-800">£{reader.monthlyFee}</div>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          if (reader.url) {
-                            window.open(reader.url, "_blank");
-                          }
-                        }}
-                        className="w-full px-6 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
-                        style={{ borderRadius: '32px', height: '3rem' }}
-                      >
-                        View Deals
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <AnimatedResultCard key={reader.providerName} reader={reader} index={index} />
               ))}
             </div>
 
