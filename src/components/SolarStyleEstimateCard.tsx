@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, ChevronRight, CreditCard, Globe, Phone, Check, ArrowLeft } from "lucide-react";
 import { useCountUpCurrency, useCountUpPercentage } from "@/hooks/useCountUp";
 
@@ -29,7 +30,7 @@ function parseGBP(input) {
 function AnimatedSummary({ annualRevenueNum, results }) {
   return (
     <p className="text-slate-600 font-light leading-relaxed">
-      Based on your monthly revenue of £{(annualRevenueNum / 12).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} and {results[0]?.estTransactions?.toLocaleString()} estimated transactions
+      Based on your monthly revenue of £{(annualRevenueNum / 12).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} and {results[0]?.estTransactions.toFixed(0)?.toLocaleString()} estimated transactions
     </p>
   );
 }
@@ -39,94 +40,156 @@ function AnimatedResultCard({ reader, index }) {
   const monthlyTotal = useCountUpCurrency(reader.totalMonthly, { delay: index * 200 });
 
   return (
-    <div
-      className={`relative bg-white rounded-2xl border-2 p-6 shadow-lg transition-all duration-300 hover:shadow-xl ${
-        reader.isLowest 
-          ? 'border-green-500 ring-4 ring-green-100' 
-          : 'border-slate-200 hover:border-slate-300'
-      }`}
+    <article
+      className="lineup-item promoted flex flex-col max-w-[1200px] rounded-[16px] shadow-[0_0_8px_0_rgba(0,0,0,0.12)] w-full mx-auto bg-white relative sm:pb-[16px]"
+      aria-label={`${reader.providerName} card offer`}
     >
-      {reader.isLowest && (
-        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-          <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-            Best Value
-          </span>
+      {/* Header ribbon */}
+      <div className="mobile-header relative h-[18px] sm:flex has-ribbon">
+        <div className={`card-number hidden sm:flex items-center justify-center h-[20px] w-[34px] py-0 px-[15px] text-black rounded-tl-[12px] bg-[#2C386233] text-[11px] font-bold ${!reader.isLowest ? 'rounded-br-[16px]' : ''}`}>
+          {index + 1}
         </div>
-      )}
+        {reader.isLowest && <div
+          className="ribbon mx-auto sm:mx-0 w-fit text-white flex items-center sm:rounded-tl-none sm:rounded-bl-none uppercase text-[11px] pt-[2px] sm:pt-0 h-[20px] px-[15px] font-bold rounded-bl-[16px] rounded-br-[16px]"
+          style={{ backgroundColor: reader.isLowest ? "#10d49c" : "#6b7280" }}
+        >
+          {reader.isLowest ? "Lowest Cost" : `${index + 1}`}
+        </div>}
+      </div>
       
-      <div className="flex items-center gap-6">
-        {/* Left side - Name and Image */}
-        <div className="flex-shrink-0 text-center max-w-[150px] min-w-[150px]">
-          <img
-            src={reader.imageUrl || "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png"}
-            alt={`${reader.providerName} card reader`}
-            className="w-24 h-24 object-contain mx-auto mb-3"
-            onError={(e) => {
-              console.log(`Failed to load image for ${reader.providerName}:`, reader.imageUrl);
-              e.currentTarget.src = "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png";
-            }}
-            onLoad={() => {
-              console.log(`Successfully loaded image for ${reader.providerName}:`, reader.imageUrl);
-            }}
-          />
-          <h4 className="text-lg font-semibold text-slate-800">{reader.providerName}</h4>
+
+      <div className="brand-container flex flex-row justify-evenly items-center gap-[16px] sm:justify-around sm:px-[16px] overflow-hidden">
+        {/* Left: provider image + name */}
+        <div className="image-container flex flex-col overflow-hidden sm:w-[174px] sm:min-w-[174px] sm:m-[12px_0_10px] rounded-[8px] w-[147px] bg-white border border-[#E4E4E5] m-[12px_0_10px_10px]">
+          <a href={reader.url || "#"} target="_blank" rel="noreferrer" className="h-[72px] sm:h-[134px] w-auto mx-auto flex justify-center items-center bg-white sm:px-[12px]">
+            <img
+              src={reader.imageUrl || "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png"}
+              alt={`${reader.providerName} card reader`}
+              className="w-[103px] max-h-[55px] sm:w-auto lg:w-full lg:max-w-[130px] lg:max-h-[90px] object-contain"
+              height={55}
+              onError={(e) => {
+                console.log(`Failed to load image for ${reader.providerName}:`, reader.imageUrl);
+                (e.currentTarget as HTMLImageElement).src =
+                  "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png";
+              }}
+              onLoad={() => {
+                console.log(`Successfully loaded image for ${reader.providerName}:`, reader.imageUrl);
+              }}
+            />
+          </a>
+          {/* Mobile score under image */}
+          <a href={reader.url || "#"} target="_blank" rel="noreferrer" className="block sm:hidden h-[20px] border-t border-[#E4E4E5]">
+            <div className="flex sm:hidden justify-center items-center gap-[6px] w-auto py-1">
+              <span className="score text-[16px] leading-[16px] font-bold">£{monthlyTotal.formatted}</span>
+              <span className="text-xs text-slate-500">/month</span>
+            </div>
+          </a>
         </div>
 
-        {/* Right side - Content */}
-        <div className="flex-1 min-w-[150px]">
-          <div className="mb-4 text-center">
-            <div className="text-3xl font-extrabold text-slate-900 mb-1">
-              £{monthlyTotal.formatted}
-            </div>
-            <div className="text-sm text-slate-500">total per month</div>
-          </div>
+        {/* Selling lines and features */}
+        <div className="selling-lines hidden sm:flex sm:shrink-0 sm:w-[150px] lg:w-[180px] flex-col gap-[8px]">
+          <a href={reader.url || "#"} target="_blank" rel="noreferrer" className="w-fit">
+            <h3 className="text-lg font-semibold text-slate-800">{reader.providerName}</h3>
+          </a>
 
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            <div className="text-center">
-              <div className="text-sm text-slate-500 mb-1">Card Machine Cost</div>
-              <div className="text-lg font-semibold text-slate-800">£{reader.deviceCostGBP || 0}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm text-slate-500 mb-1">Blended rate</div>
-              <div className="text-lg font-semibold text-slate-800">{(reader.blendedPct * 100).toFixed(2)}%</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm text-slate-500 mb-1">Transaction Fee</div>
-              <div className="text-lg font-semibold text-slate-800">{(reader.transactionFeeRate || 0).toFixed(2)}%</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm text-slate-500 mb-1">Monthly fee</div>
-              <div className="text-lg font-semibold text-slate-800">£{reader.monthlyFee}</div>
-            </div>
+          <div className="bullets">
+            <ul className="flex flex-col gap-[2px] sm:w-fit lg:w-[378px] text-[13px]">
+              <li className="flex gap-[4px] items-center whitespace-nowrap text-[#727574]">
+                <img src="https://top5-websitebuilders.com/app/themes/topsites/public/images/selling-line-bullets-checkmark.776c94.svg" alt="checkmark" className="h-[16px] w-[16px]" aria-hidden="true" /> Card Machine: <span className="font-semibold">£{reader.deviceCostGBP || 0}</span>
+              </li>
+              <li className="flex gap-[4px] items-center whitespace-nowrap text-[#727574]">
+                <img src="https://top5-websitebuilders.com/app/themes/topsites/public/images/selling-line-bullets-checkmark.776c94.svg" alt="checkmark" className="h-[16px] w-[16px]" aria-hidden="true" /> Transaction Fee: <span className="font-semibold">{(reader.transactionFeeRate || 0).toFixed(2)}%</span>
+              </li>
+              <li className="flex gap-[4px] items-center whitespace-nowrap text-[#727574]">
+                <img src="https://top5-websitebuilders.com/app/themes/topsites/public/images/selling-line-bullets-checkmark.776c94.svg" alt="checkmark" className="h-[16px] w-[16px]" aria-hidden="true" /> Monthly Fee: <span className="font-semibold">£{reader.monthlyFee}</span>
+              </li>
+            </ul>
           </div>
+        </div>
 
-          <button
-            onClick={() => {
-              if (reader.url) {
-                window.open(reader.url, "_blank");
-              }
-            }}
-            className="w-full px-6 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
-            style={{ borderRadius: '32px', height: '3rem' }}
-          >
-            View Deals
-          </button>
-          
-          {/* Informative text about device cost amortization */}
-          <div className="mt-3 text-xs text-slate-500 leading-relaxed">
-            {(() => {
-              const currency = "£";
-              const deviceCost = reader.deviceCostGBP || 49;
-              const months = 24;
-              const devicePerMonth = deviceCost / months;
-              const monthlyFeesOnly = reader.totalMonthly - devicePerMonth;
+        {/* Score box (desktop) */}
+        <div className="score-box flex-col hidden md:flex md:w-[174px]">
+          <div className="flex flex-col items-center">
+            <a href={reader.url || "#"} target="_blank" rel="noreferrer" className="score-rating w-[100px] h-[100px] p-[6px] flex flex-col gap-[3px] justify-center items-center rounded-[8px] border border-[#E4E4E5]">
+              <div className="score font-semibold text-2xl text-[#323738]">£{monthlyTotal.raw.toFixed(0)}</div>
+              <div className="score-wrapper text-center">
+                <div className="score-text font-medium text-[12px] leading-[18px] text-[#323738]">per month</div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        {/* Right actions */}
+        <div className="action-links flex flex-col justify-center items-center gap-[8px] p-[8px] sm:gap-[12px] min-w-[140px] max-w-[180px]">
+          <a href={reader.url || "#"} target="_blank" rel="noreferrer">
+            <button className="bg-primary hover:brightness-[1.15] active:brightness-[0.91] rounded-[8px] h-[36px] w-[130px] sm:w-[150px] text-white flex flex-row gap-[6px] justify-center items-center shadow-[0_2px_5px_0_rgba(44,56,98,0.09),0_4px_12px_0_rgba(44,56,98,0.20)]">
+              <span className="flex items-center gap-[4px] text-[12px] leading-[18px] font-medium sm:text-[13px]">
+                Visit Site
+                <svg className="h-[16px] w-[16px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                  <path d="M13.172 12 8.222 7.05l1.414-1.414L16 12l-6.364 6.364-1.414-1.414z" />
+                </svg>
+              </span>
+            </button>
+          </a>
+          <div className="visit-link text-[12px] leading-[18px] sm:text-[13px] text-[#5878EB] font-medium">
+            <a href={reader.createAccountUrl || reader.url || "#"} target="_blank" rel="noreferrer">
+              Create Account
               
-              return `This price includes ${currency}${devicePerMonth.toFixed(2)} per month to amortise the ${currency}${deviceCost} device over ${months} months. After that, your monthly cost drops to ${currency}${monthlyFeesOnly.toFixed(2)}.`;
-            })()}
+            </a>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Mobile promo line */}
+      <a
+        href={reader.url || "#"}
+        target="_blank"
+        rel="noreferrer"
+        className="promotion-line flex sm:hidden w-full max-w-[311px] text-center justify-center border-secondary border-dashed border bg-secondary/10 rounded-[8px] px-[6px] py-[5px] text-[#323738] font-semibold text-[13px] leading-[18px] my-[6px] mx-auto mt-[15px]"
+      >
+        Total: £{monthlyTotal.formatted}/month
+      </a>
+
+      {/* Collapsible More Info (mobile) */}
+      <details className="rounded-bl-[16px] rounded-br-[16px] lineup-brand-more-info bg-white block sm:hidden overflow-hidden">
+        <summary className="flex p-[5px] cursor-pointer bg-[#f2f2f4] text-[#727574] leading-[22px] justify-center rounded-bl-[16px] rounded-br-[16px] w-full">
+          More Info &nbsp;
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M7 10l5 5 5-5z" />
+          </svg>
+        </summary>
+        <div className="more-info-wrapper flex flex-col text-[#323738] text-[12px] leading-[20px] mb-[4px]">
+          <div className="bullet-points text-primary bg-[#F5F7FC] p-[10px_16px]">
+            <ul className="flex flex-col gap-[2px]">
+              <li className="flex gap-[4px] text-[#323738]">Card Machine Cost: £{reader.deviceCostGBP || 0}</li>
+              <li className="flex gap-[4px] text-[#323738]">Transaction Fee: {(reader.transactionFeeRate || 0).toFixed(2)}%</li>
+              <li className="flex gap-[4px] text-[#323738]">Monthly Fee: £{reader.monthlyFee}</li>
+            </ul>
+          </div>
+          <div className="p-[10px_16px]">
+            <div className="text-[16px] leading-[20px] font-semibold">Key Features</div>
+            <ul className="flex flex-col gap-[4px] text-[14px] leading-[19px]">
+              <li>Fast payment processing</li>
+              <li>Secure transactions</li>
+              <li>24/7 customer support</li>
+              <li>Easy setup and management</li>
+            </ul>
+          </div>
+          <div className="flex gap-[6px] justify-center p-[8px_12px_16px]">
+            <a href={reader.url || "#"}>
+              <button className="flex font-medium gap-[4px] justify-center items-center rounded-[8px] text-[#5878EB] bg-transparent text-[12px] leading-[18px] h-[30px] w-[110px] py-[4px]">
+                Visit site <span>&gt;</span>
+              </button>
+            </a>
+            <a href={reader.createAccountUrl || reader.url || "#"}>
+              <button className="visit-site flex justify-center items-center rounded-[8px] border border-solid border-[#5878EB] text-[#5878EB] bg-transparent text-[12px] font-medium leading-[18px] h-[30px] w-[120px] py-[4px]">
+                Create Account
+              </button>
+            </a>
+          </div>
+        </div>
+      </details>
+    </article>
   );
 }
 
@@ -189,7 +252,7 @@ function CurrencyInput({
             title="Looks good"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 6L9 17l-5-5" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M20 6L9 17l-5-5" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
         )}
@@ -233,6 +296,7 @@ export type Provider = {
   payoutDays?: number | null;
   notes?: string;
   url?: string;               // provider URL
+  createAccountUrl?: string;  // create account URL
   imageUrl?: string;          // provider image URL
 };
 
@@ -314,10 +378,10 @@ export function computeCost(p: Provider, inputs: Inputs): CostBreakdown {
     (p.fees.fixed.phone || 0) * mix.phone;
 
   const percentFeeCost = monthlyRevenue * pct;
-  const fixedFeeCost   = estTransactionsFloat * fixed;
+  const fixedFeeCost = estTransactionsFloat * fixed;
 
-  const monthlyFee     = p.monthlyFeeGBP || 0;
-  const months         = inputs.amortiseMonths && inputs.amortiseMonths > 0 ? inputs.amortiseMonths : 0;
+  const monthlyFee = p.monthlyFeeGBP || 0;
+  const months = inputs.amortiseMonths && inputs.amortiseMonths > 0 ? inputs.amortiseMonths : 0;
   const deviceAmortised = months ? (p.deviceCostGBP || 0) / months : 0;
 
   console.log(`percentFeeCost: ${percentFeeCost}, fixedFeeCost: ${fixedFeeCost}, monthlyFee: ${monthlyFee}, deviceAmortised: ${deviceAmortised}`);
@@ -367,6 +431,7 @@ const PROVIDERS: Provider[] = [
     payoutDays: 1,
     notes: "Low in-person %.",
     url: "https://www.tide.co/offers/card-reader-getpaidsummer/?gclsrc=aw.ds&utm_source=GoogleAds&utm_medium=CPC&utm_campaign=ACQPOS-UK-EN-DA-PaidSearch-Product-POS-Generic&utm_content=Generic-POS-Device&utm_term=card%20processor&gad_source=1&gad_campaignid=22848929742&gbraid=0AAAAADOJNHcc7VQeGrvZ3p4X7uR_vDI6z&gclid=Cj0KCQjw0NPGBhCDARIsAGAzpp1SWVy7IfAPsu8tvSnB_N5I7do8bqBb6b0b_mCbnBmI04DiQAiExhUaAs1MEALw_wcB",
+    createAccountUrl: "https://web.tide.co/sign-up?af_sub1=63874690-29b9-4354-8baa-ebe076dff255&pid=GoogleAds&af_click_lookback=30d&cmpg=C0001,C0002,C0003,C0004&af_keywords=card%20processor&af_adset=Generic-POS-Device&af_channel=CPC&af_sub3=Cj0KCQjw0NPGBhCDARIsAGAzpp1SWVy7IfAPsu8tvSnB_N5I7do8bqBb6b0b_mCbnBmI04DiQAiExhUaAs1MEALw_wcB&c=ACQPOS-UK-EN-DA-PaidSearch-Product-POS-Generic",
     imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/Tide-Reader.webp"
   },
   {
@@ -381,6 +446,7 @@ const PROVIDERS: Provider[] = [
     },
     payoutDays: 1,
     url: "https://www.barclaycard.co.uk/business/accepting-payments/card-readers/mobile",
+    createAccountUrl: "https://www.barclaycard.co.uk/business/contact-us",
     imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png"
   },
   {
@@ -394,6 +460,7 @@ const PROVIDERS: Provider[] = [
       fixed: { inPerson: 0, online: 0, phone: 0 }
     },
     url: "https://squareup.com/us/en?irgwc=1&utm_medium=affiliate&utm_source=impact_radius&utm_term=_myxdh0bn6gkaxyvezq2dewrscm222vbpgdjjqchc00",
+    createAccountUrl: "https://app.squareup.com/login?lang_code=en-gb",
     imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/Square-reader.webp"
   },
   {
@@ -408,6 +475,7 @@ const PROVIDERS: Provider[] = [
     },
     payoutDays: 1,
     url: "https://squareup.com/us/en?irgwc=1&utm_medium=affiliate&utm_source=impact_radius&utm_term=_myxdh0bn6gkaxyvezq2dewrscm222vbpxxjjqchc00",
+    createAccountUrl: "https://app.squareup.com/login?lang_code=en-gb",
     imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/Square-stand.webp"
   },
   {
@@ -421,11 +489,13 @@ const PROVIDERS: Provider[] = [
       fixed: { inPerson: 0, online: 0, phone: 0 }
     },
     url: "https://www.zettle.com/gb/payments/terminal",
+    createAccountUrl: "https://www.paypal.com/unifiedonboarding/entry?products=ZETTLE&origin=PAYPAL_WEB",
     imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/iZettle-terminal.webp"
   }
 ];
 
 export default function SolarStyleEstimateCard() {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [annualRevenue, setAnnualRevenue] = useState("");
   const [avgTransaction, setAvgTransaction] = useState("");
@@ -433,12 +503,13 @@ export default function SolarStyleEstimateCard() {
   const [results, setResults] = useState<CardReader[] | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [touched, setTouched] = useState({ annualRevenue: false, avgTransaction: false });
-  
+  const [showValidation, setShowValidation] = useState(false);
+
   const totalSteps = 3;
   const annualRevenueNum = Number(annualRevenue) || 0;
   const avgTransactionNum = Number(avgTransaction) || 0;
-  
-  const canProceed = 
+
+  const canProceed =
     (currentStep === 1 && annualRevenueNum > 0) ||
     (currentStep === 2 && avgTransactionNum > 0) ||
     (currentStep === 3 && paymentMethods.length > 0);
@@ -467,42 +538,42 @@ export default function SolarStyleEstimateCard() {
     title: string;
     icon: React.ReactNode;
   }> = [
-    {
-      key: "1-2",
-      title: "1–2 bedrooms",
-      icon: (
-        <svg width="36" height="36" viewBox="0 0 48 48" fill="none" aria-hidden>
-          <path d="M8 22l16-10 16 10v14a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V22z" stroke="#1B4B66" strokeWidth="2" fill="#E6F3F7"/>
-          <path d="M18 38V26h12v12" stroke="#1B4B66" strokeWidth="2"/>
-        </svg>
-      ),
-    },
-    {
-      key: "3",
-      title: "3 bedrooms",
-      icon: (
-        <svg width="36" height="36" viewBox="0 0 48 48" fill="none" aria-hidden>
-          <path d="M6 24l18-12 18 12v12a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V24z" stroke="#1B4B66" strokeWidth="2" fill="#EAF6EE"/>
-          <path d="M16 39V27h16v12" stroke="#1B4B66" strokeWidth="2"/>
-        </svg>
-      ),
-    },
-    {
-      key: "4+",
-      title: "4+ bedrooms",
-      icon: (
-        <svg width="36" height="36" viewBox="0 0 48 48" fill="none" aria-hidden>
-          <path d="M4 24l20-14 20 14v14a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V24z" stroke="#1B4B66" strokeWidth="2" fill="#F3EEF9"/>
-          <path d="M14 42V28h20v14" stroke="#1B4B66" strokeWidth="2"/>
-        </svg>
-      ),
-    },
-  ];
+      {
+        key: "1-2",
+        title: "1–2 bedrooms",
+        icon: (
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none" aria-hidden>
+            <path d="M8 22l16-10 16 10v14a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V22z" stroke="#1B4B66" strokeWidth="2" fill="#E6F3F7" />
+            <path d="M18 38V26h12v12" stroke="#1B4B66" strokeWidth="2" />
+          </svg>
+        ),
+      },
+      {
+        key: "3",
+        title: "3 bedrooms",
+        icon: (
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none" aria-hidden>
+            <path d="M6 24l18-12 18 12v12a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V24z" stroke="#1B4B66" strokeWidth="2" fill="#EAF6EE" />
+            <path d="M16 39V27h16v12" stroke="#1B4B66" strokeWidth="2" />
+          </svg>
+        ),
+      },
+      {
+        key: "4+",
+        title: "4+ bedrooms",
+        icon: (
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none" aria-hidden>
+            <path d="M4 24l20-14 20 14v14a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V24z" stroke="#1B4B66" strokeWidth="2" fill="#F3EEF9" />
+            <path d="M14 42V28h20v14" stroke="#1B4B66" strokeWidth="2" />
+          </svg>
+        ),
+      },
+    ];
 
   function calculateResults() {
     // Create payment mix from selected methods
     const mix: Inputs["mix"] = { inPerson: 0, online: 0, phone: 0 };
-    
+
     if (paymentMethods.length > 0) {
       const weight = 1 / paymentMethods.length;
       paymentMethods.forEach(method => {
@@ -526,41 +597,52 @@ export default function SolarStyleEstimateCard() {
 
     // Use the new calculation logic
     const costBreakdowns = recommend(PROVIDERS, inputs);
-    
-        // Add isLowest flag and convert to CardReader format
-        const cardReaders: CardReader[] = costBreakdowns.map((breakdown, index) => {
-          const provider = PROVIDERS.find(p => p.id === breakdown.providerId);
-          console.log(`Provider ${provider?.name}: transactionFeeRate = ${provider?.transactionFeeRate}`);
-          return {
-            ...breakdown,
-            isLowest: index === 0, // First item (cheapest) is marked as lowest
-            deviceCostGBP: provider ? provider.deviceCostGBP : 0,
-            url: provider?.url,
-            imageUrl: provider?.imageUrl,
-            transactionFeeRate: provider?.transactionFeeRate || 0 // Use the direct transaction fee rate
-          };
-        });
+
+    // Add isLowest flag and convert to CardReader format
+    const cardReaders: CardReader[] = costBreakdowns.map((breakdown, index) => {
+      const provider = PROVIDERS.find(p => p.id === breakdown.providerId);
+      console.log(`Provider ${provider?.name}: transactionFeeRate = ${provider?.transactionFeeRate}`);
+      return {
+        ...breakdown,
+        isLowest: index === 0, // First item (cheapest) is marked as lowest
+        deviceCostGBP: provider ? provider.deviceCostGBP : 0,
+        url: provider?.url,
+        imageUrl: provider?.imageUrl,
+        transactionFeeRate: provider?.transactionFeeRate || 0 // Use the direct transaction fee rate
+      };
+    });
 
     return cardReaders;
   }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setShowValidation(true);
     if (!canSubmit) return;
-    
+
     setIsCalculating(true);
-    
+
     // Simulate calculation delay
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     const calculatedResults = calculateResults();
-    setResults(calculatedResults);
+    
+    // Navigate to the savings report page with the results
+    navigate('/card-savings-report', {
+      state: {
+        results: calculatedResults,
+        annualRevenue: annualRevenueNum,
+        avgTransaction: avgTransactionNum,
+        paymentMethods: paymentMethods
+      }
+    });
+    
     setIsCalculating(false);
   }
 
   const handlePaymentMethodToggle = (method: string) => {
-    setPaymentMethods(prev => 
-      prev.includes(method) 
+    setPaymentMethods(prev =>
+      prev.includes(method)
         ? prev.filter(m => m !== method)
         : [...prev, method]
     );
@@ -571,6 +653,7 @@ export default function SolarStyleEstimateCard() {
   };
 
   const handleNext = () => {
+    setShowValidation(true);
     if (currentStep < totalSteps && canProceed) {
       setCurrentStep(currentStep + 1);
     }
@@ -590,16 +673,17 @@ export default function SolarStyleEstimateCard() {
 
   return (
     <div className="w-full py-10 flex justify-center bg-[#f7f9f8]" data-estimate-card>
-      <div className="w-full max-w-5xl rounded-2xl bg-white shadow-[0_8px_24px_rgba(16,24,40,0.08)] border border-slate-100 py-8"
-        style={{ paddingLeft: '8.5rem', paddingRight: '8.5rem' }}>
-        
+      <div className="w-full max-w-5xl rounded-2xl bg-white shadow-[0_8px_24px_rgba(16,24,40,0.08)] border border-slate-100 py-8 px-4 md:px-[4rem]">
+
         {!results ? (
           // Form Section with Stepper
           <div className="py-2 ">
             {/* Stepper Header */}
             <div className="text-center mb-8">
-              <h2 className="text-xl md:text-2xl font-extrabold tracking-[-0.02em] text-slate-800 m-auto">
-              Get your personalised Card Machine Report – compare top readers and find your best rates in 3 simple steps.              </h2>         
+              <h2 className="text-xl md:text-3xl font-extrabold tracking-[-0.02em] text-slate-800 m-auto mb-2">
+                Let’s get started with your card savings report  </h2>
+              <p className="text-md text-slate-600 font-light leading-relaxed"> We’ll calculate the savings based on your card turnover and average transaction size.
+              </p>
             </div>
 
             {/* Stepper Progress */}
@@ -634,7 +718,7 @@ export default function SolarStyleEstimateCard() {
                 <div className="text-center">
                   <div className="max-w-md mx-auto">
                     <label htmlFor="annualRevenue" className="block text-md font-semibold text-slate-700 mb-2">
-                    What's your estimated annual card revenue? (£)
+                      What's your estimated annual card revenue? (£)
                     </label>
                     <CurrencyInput
                       id="annualRevenue"
@@ -646,7 +730,7 @@ export default function SolarStyleEstimateCard() {
                         }
                       }}
                       required
-                      error={touched.annualRevenue && (annualRevenue === "" || annualRevenueNum <= 0)}
+                      error={(touched.annualRevenue || showValidation) && (annualRevenue === "" || annualRevenueNum <= 0)}
                       placeholder="£ 200,000"
                     />
                   </div>
@@ -658,7 +742,7 @@ export default function SolarStyleEstimateCard() {
                 <div className="text-center">
                   <div className="max-w-md mx-auto">
                     <label htmlFor="avgTransaction" className="block text-md font-semibold text-slate-700 mb-2">
-                    What's your average transaction value? (£)
+                      What's your average transaction value? (£)
                     </label>
                     <CurrencyInput
                       id="avgTransaction"
@@ -735,45 +819,31 @@ export default function SolarStyleEstimateCard() {
                 <button
                   type="button"
                   onClick={handleNext}
-                  disabled={!canProceed}
-                         className={[
-                           "px-6 text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300",
-                           "focus:outline-none",
-                           canProceed
-                             ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                             : "bg-slate-100 text-slate-400 cursor-not-allowed",
-                         ].join(" ")}
-                         style={{ borderRadius: '32px', height: '3rem' }}
+                  className="px-6 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none"
+                  style={{ borderRadius: '32px', height: '3rem' }}
                 >
-                  Next <ChevronRight className="ml-2 h-4 w-4 inline" />
+                  Continue <ChevronRight className="ml-2 h-4 w-4 inline" />
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={onSubmit}
-                  disabled={!canSubmit || isCalculating}
-                         className={[
-                           "px-6 text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300",
-                           "focus:outline-none",
-                           canSubmit && !isCalculating
-                             ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                             : "bg-slate-100 text-slate-400 cursor-not-allowed",
-                         ].join(" ")}
-                         style={{ borderRadius: '32px', height: '3rem' }}
+                  className="px-6 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none"
+                  style={{ borderRadius: '32px', height: '3rem' }}
                 >
-                  {isCalculating ? "Calculating..." : "Calculate my savings"} 
+                  {isCalculating ? "Calculating..." : "Calculate my savings"}
                   {!isCalculating && <ChevronRight className="ml-2 h-4 w-4 inline" />}
                 </button>
               )}
             </div>
           </div>
         ) : (
-                // Results Section
-                <div>
+          // Results Section
+          <div>
 
             <div className="text-center mb-8">
               <h3 className="text-2xl md:text-3xl font-extrabold tracking-[-0.02em] text-slate-800 mb-4">
-                Your Card Reader Comparison
+              Your Card Savings Report
               </h3>
               <AnimatedSummary annualRevenueNum={annualRevenueNum} results={results} />
             </div>
@@ -784,23 +854,23 @@ export default function SolarStyleEstimateCard() {
               ))}
             </div>
 
-                  <div className="mt-8 text-center">
-                    <p className="text-slate-600 font-light">
-                      *Prices shown are estimates. Actual costs may vary based on your specific business needs.
-                    </p>
-                  </div>
+            <div className="mt-8 text-center">
+              <p className="text-slate-600 font-light">
+                *Prices shown are estimates. Actual costs may vary based on your specific business needs.
+              </p>
+            </div>
 
-                  {/* Bottom Navigation */}
-                  <div className="flex items-center justify-center mt-8">
-                    <button
-                      type="button"
-                      onClick={handleGoBack}
-                      className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-300 flex items-center justify-center"
-                    >
-                      <ArrowLeft className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
+            {/* Bottom Navigation */}
+            <div className="flex items-center justify-center mt-8">
+              <button
+                type="button"
+                onClick={handleGoBack}
+                className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-300 flex items-center justify-center"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>

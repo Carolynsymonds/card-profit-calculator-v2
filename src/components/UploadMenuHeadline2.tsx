@@ -73,48 +73,49 @@ const UploadMenuHeadline2 = ({ onButtonClick }: { onButtonClick?: (buttonName: s
 
   return (
     <>
-    <section className="relative overflow-hidden flex flex-col pt-16 md:pt-12">
-      {/* Background */}
+      <section className="relative overflow-hidden flex flex-col pt-16 md:pt-12">
+        {/* Background */}
 
-      <div className="mx-auto max-w-7xl px-6 pt-24 pb-16 flex-1 flex flex-col justify-between">
-        <div className="animate-fade-in grid gap-16 flex-1 flex flex-col justify-center">
-          {/* Main Banner Section - Side by Side */}
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left: Text Content */}
-            <div className="space-y-6 text-center md:text-left order-1 md:order-1">
-              <p className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-[-0.02em] text-foreground">
-              Find the best card machine for your business with <span className="text-primary">Tap Wise advice</span> 
-              </p>
-              <p className="text-lg md:text-lg text-muted-foreground leading-relaxed font-light">
-              Get your personalised payment report – we’ll calculate your monthly costs, compare the top card readers, and match you with the most cost-effective option for your needs.              </p>
-              <div className="flex items-center gap-2 justify-center md:justify-start">
-                <Button
-                  onClick={handleSignupClick}
-                  className="px-6 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
-                  style={{ borderRadius: '32px', height: '3rem' }}
-                >
-                  Get started now
-                </Button>
+        <div className="mx-auto max-w-7xl px-6 pt-24 pb-16 flex-1 flex flex-col justify-between">
+          <div className="animate-fade-in grid gap-16 flex-1 flex flex-col justify-center">
+            {/* Main Banner Section - Side by Side */}
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              {/* Left: Text Content */}
+              <div className="space-y-6 text-center md:text-left order-1 md:order-1">
+                <p className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-[-0.02em] text-foreground">
+                  Find the best card machine deal for your business with  <span className="text-primary">TapWise advice</span>
+                </p>
+                <p className="text-lg md:text-lg text-muted-foreground leading-relaxed font-light">
+                  Get your personalised card savings report  - we’ll calculate your monthly costs, compare the top card readers, and match you with the most cost-effective option
+                </p>
+                <div className="flex items-center gap-2 justify-center md:justify-start">
+                  <Button
+                    onClick={handleSignupClick}
+                    className="px-6 text-md font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
+                    style={{ borderRadius: '32px', height: '3.5rem' }}
+                  >
+                    Get started now
+                  </Button>
+                </div>
+
               </div>
 
+              {/* Right: Image */}
+              <div className="flex justify-end order-2 md:order-2">
+                <img
+                  src="/lovable-uploads/image_card2.png"
+                  alt="Card machine on counter"
+                  className="w-full max-w-lg rounded-2xl"
+                  loading="eager"
+                />
+              </div>
             </div>
-
-             {/* Right: Image */}
-             <div className="flex justify-end order-2 md:order-2">
-               <img
-                 src="/lovable-uploads/image_card2.png"
-                 alt="Card machine on counter"
-                 className="w-full max-w-lg rounded-2xl"
-                 loading="eager"
-               />
-             </div>
           </div>
         </div>
-      </div>
 
-    </section>
+      </section>
 
-    
+
     </>
   );
 };

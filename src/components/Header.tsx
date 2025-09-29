@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
@@ -8,22 +8,44 @@ import { useUtmTracking } from "@/hooks/useUtmTracking";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const location = useLocation();
   const isSignupPage = location.pathname === '/signup';
   const { navigateWithUtm } = useUtmTracking();
 
-  // Handle scroll effect for header
-  useState(() => {
+  // Handle scroll effect for header visibility
+  useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      const currentScrollY = window.scrollY;
+      
+      // Show header when at top
+      if (currentScrollY < 10) {
+        setIsVisible(true);
+        setIsScrolled(false);
+      } else {
+        setIsScrolled(true);
+        
+        // Hide header when scrolling down, show when scrolling up
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          setIsVisible(false);
+        } else {
+          setIsVisible(true);
+        }
+      }
+      
+      setLastScrollY(currentScrollY);
     };
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  });
+  }, [lastScrollY]);
 
   return (
    <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isVisible ? 'translate-y-0' : '-translate-y-full'
+      } ${
         isScrolled 
           ? 'bg-background/95 backdrop-blur-md shadow-sm border-b' 
           : 'bg-transparent'
@@ -41,23 +63,6 @@ const Header = () => {
                 />
             </Link>
             
-            {/* Desktop Navigation Links */}
-            <nav className="items-center gap-6">
-              <Button
-                variant="ghost"
-                className="text-foreground font-sans text-sm hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-primary"
-                onClick={() => navigateWithUtm('/how-it-works')}
-              >
-                How it works
-              </Button>
-              <Button
-                variant="ghost"
-                className="text-foreground font-sans text-sm hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-primary"
-                onClick={() => navigateWithUtm('/compare-card-readers')}
-              >
-                Card Machines
-              </Button>
-            </nav>
           </div>
 
           {/* Right Side - User Actions */}
@@ -145,17 +150,17 @@ const Header = () => {
                         document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
                       }}
                     >
-                      Features
+                      How it works
                     </Button>
                     <Button
                       variant="ghost"
                       className="text-foreground font-sans text-sm justify-start hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-primary"
                       onClick={() => {
-                        navigateWithUtm('/pricing');
+                        navigateWithUtm('/compare-card-readers');
                         document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
                       }}
                     >
-                      Pricing
+                      Card Machines
                     </Button>
                   </div>
                   

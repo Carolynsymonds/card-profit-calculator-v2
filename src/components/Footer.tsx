@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 import { siteContent } from "@/config/site-content";
+import { useUtmTracking } from "@/hooks/useUtmTracking";
 
 interface FooterProps {
   variant?: "default" | "white";
 }
 
 const Footer = ({ variant = "default" }: FooterProps) => {
+  const { navigateWithUtm } = useUtmTracking();
+  
   return (
     <footer className="bg-[#f7f9f8] w-full">
       <div className="mx-auto max-w-6xl px-6 py-8">
@@ -23,6 +26,18 @@ const Footer = ({ variant = "default" }: FooterProps) => {
           
           {/* Right side - Navigation links */}
           <nav className="flex flex-wrap gap-6">
+            <button
+              onClick={() => navigateWithUtm('/how-it-works')}
+              className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            >
+              How it works
+            </button>
+            <button
+              onClick={() => navigateWithUtm('/compare-card-readers')}
+              className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            >
+              Card Machines
+            </button>
             <Link 
               to="/privacy-policy" 
               className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
