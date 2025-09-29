@@ -76,7 +76,7 @@ const UploadMenuHeadline2 = ({ onButtonClick }: { onButtonClick?: (buttonName: s
       <section className="relative overflow-hidden flex flex-col pt-16 md:pt-12">
         {/* Background */}
 
-        <div className="mx-auto max-w-7xl px-6 pt-24 pb-16 flex-1 flex flex-col justify-between">
+        <div className="mx-auto max-w-7xl px-6 md:pt-24 pt-16 pb-16 flex-1 flex flex-col justify-between">
           <div className="animate-fade-in grid gap-16 flex-1 flex flex-col justify-center">
             {/* Main Banner Section - Side by Side */}
             <div className="grid md:grid-cols-2 gap-12 items-center">
