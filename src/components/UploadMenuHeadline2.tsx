@@ -103,7 +103,7 @@ const UploadMenuHeadline2 = ({ onButtonClick }: { onButtonClick?: (buttonName: s
               {/* Right: Image */}
               <div className="flex justify-end order-2 md:order-2">
                 <img
-                  src="/lovable-uploads/image_card2.png"
+                  src="/lovable-uploads/image_card.webp"
                   alt="Card machine on counter"
                   className="w-full max-w-lg rounded-2xl"
                   loading="eager"
