@@ -30,7 +30,7 @@ function parseGBP(input) {
 function AnimatedSummary({ annualRevenueNum, results }) {
   return (
     <p className="text-slate-600 font-light leading-relaxed">
-      Based on your monthly revenue of £{(annualRevenueNum / 12).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} and {results[0]?.estTransactions.toFixed(0)?.toLocaleString()} estimated transactions
+      Based on your estimated monthly revenue of £{(annualRevenueNum / 12).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} and {results[0]?.estTransactions.toFixed(0)?.toLocaleString()} transactions
     </p>
   );
 }
@@ -95,10 +95,10 @@ function AnimatedResultCard({ reader, index }) {
           <div className="bullets">
             <ul className="flex flex-col gap-[2px] sm:w-fit lg:w-[378px] text-[13px]">
               <li className="flex gap-[4px] items-center whitespace-nowrap text-[#727574]">
-                <img src="https://top5-websitebuilders.com/app/themes/topsites/public/images/selling-line-bullets-checkmark.776c94.svg" alt="checkmark" className="h-[16px] w-[16px]" aria-hidden="true" /> Card Machine: <span className="font-semibold">£{reader.deviceCostGBP || 0}</span>
+                <img src="https://top5-websitebuilders.com/app/themes/topsites/public/images/selling-line-bullets-checkmark.776c94.svg" alt="checkmark" className="h-[16px] w-[16px]" aria-hidden="true" /> Card Machine One-off: <span className="font-semibold">£{reader.deviceCostGBP || 0}</span>
               </li>
               <li className="flex gap-[4px] items-center whitespace-nowrap text-[#727574]">
-                <img src="https://top5-websitebuilders.com/app/themes/topsites/public/images/selling-line-bullets-checkmark.776c94.svg" alt="checkmark" className="h-[16px] w-[16px]" aria-hidden="true" /> Transaction Fee: <span className="font-semibold">{(reader.transactionFeeRate || 0).toFixed(2)}%</span>
+                <img src="https://top5-websitebuilders.com/app/themes/topsites/public/images/selling-line-bullets-checkmark.776c94.svg" alt="checkmark" className="h-[16px] w-[16px]" aria-hidden="true" />we fdfdfTransaction Fee: <span className="font-semibold">{(reader.transactionFeeRate || 0).toFixed(2)}%</span>
               </li>
               <li className="flex gap-[4px] items-center whitespace-nowrap text-[#727574]">
                 <img src="https://top5-websitebuilders.com/app/themes/topsites/public/images/selling-line-bullets-checkmark.776c94.svg" alt="checkmark" className="h-[16px] w-[16px]" aria-hidden="true" /> Monthly Fee: <span className="font-semibold">£{reader.monthlyFee}</span>
@@ -162,7 +162,7 @@ function AnimatedResultCard({ reader, index }) {
           <div className="bullet-points text-primary bg-[#F5F7FC] p-[10px_16px]">
             <ul className="flex flex-col gap-[2px]">
               <li className="flex gap-[4px] text-[#323738]">Card Machine Cost: £{reader.deviceCostGBP || 0}</li>
-              <li className="flex gap-[4px] text-[#323738]">Transaction Fee: {(reader.transactionFeeRate || 0).toFixed(2)}%</li>
+              <li className="flex gap-[4px] text-[#323738]">Transactssion Fee: {(reader.transactionFeeRate || 0).toFixed(2)}%</li>
               <li className="flex gap-[4px] text-[#323738]">Monthly Fee: £{reader.monthlyFee}</li>
             </ul>
           </div>
@@ -291,8 +291,18 @@ export type Provider = {
   products?: string[];
   deviceCostGBP: number;      // upfront device price
   transactionFeeRate: number; // transaction fee rate as percentage (e.g., 1.75 for 1.75%)
+  transactionPence?: number; // fixed pence per transaction (e.g., 3 for 3p)
   monthlyFeeGBP: number;      // recurring monthly fee
   fees: FeeByChannel;         // % and fixed fees by channel
+  transaction?: {             // new per-channel structure
+    inPerson?: { ratePct?: number; fixedGBP?: number };
+    online?: { ratePct?: number; fixedGBP?: number };
+    phone?: { ratePct?: number; fixedGBP?: number };
+  };
+  variants?: {               // optional variants/add-ons
+    tapToPay?: { ratePct?: number; fixedGBP?: number };
+    nextDaySettlementBoostGBP?: number;
+  };
   payoutDays?: number | null;
   notes?: string;
   url?: string;               // provider URL
@@ -334,6 +344,7 @@ export type CostBreakdown = {
   monthlyFee: number;
   deviceAmortised: number; // deviceCost / amortiseMonths (or 0)
   totalMonthly: number;
+  transactionPence?: number; // fixed pence per transaction
 };
 
 type Mix = { inPerson?: number; online?: number; phone?: number };
@@ -366,16 +377,24 @@ export function computeCost(p: Provider, inputs: Inputs): CostBreakdown {
   const estTransactionsFloat = monthlyRevenue / avgTxn;
 
   // Blended percentage (fees are decimals e.g., 0.0175)
-  const pct =
-    (p.fees.pct.inPerson || 0) * mix.inPerson +
-    (p.fees.pct.online || 0) * mix.online +
-    (p.fees.pct.phone || 0) * mix.phone;
+  // Use new transaction structure if available, fallback to old fees structure
+  const pct = p.transaction ? 
+    ((p.transaction.inPerson?.ratePct || 0) * mix.inPerson +
+     (p.transaction.online?.ratePct || 0) * mix.online +
+     (p.transaction.phone?.ratePct || 0) * mix.phone) :
+    ((p.fees.pct.inPerson || 0) * mix.inPerson +
+     (p.fees.pct.online || 0) * mix.online +
+     (p.fees.pct.phone || 0) * mix.phone);
 
   // Blended fixed per-transaction (in GBP)
-  const fixed =
-    (p.fees.fixed.inPerson || 0) * mix.inPerson +
-    (p.fees.fixed.online || 0) * mix.online +
-    (p.fees.fixed.phone || 0) * mix.phone;
+  // Use new transaction structure if available, fallback to old fees structure
+  const fixed = p.transaction ?
+    ((p.transaction.inPerson?.fixedGBP || 0) * mix.inPerson +
+     (p.transaction.online?.fixedGBP || 0) * mix.online +
+     (p.transaction.phone?.fixedGBP || 0) * mix.phone) :
+    ((p.fees.fixed.inPerson || 0) * mix.inPerson +
+     (p.fees.fixed.online || 0) * mix.online +
+     (p.fees.fixed.phone || 0) * mix.phone);
 
   const percentFeeCost = monthlyRevenue * pct;
   const fixedFeeCost = estTransactionsFloat * fixed;
@@ -399,12 +418,33 @@ export function computeCost(p: Provider, inputs: Inputs): CostBreakdown {
     monthlyFee,
     deviceAmortised,
     totalMonthly,
+    transactionPence: p.transactionPence
   };
 }
 
 // Rank providers by cheapest total
 export function recommend(providers: Provider[], inputs: Inputs) {
-  const rows = providers.map((p) => computeCost(p, inputs));
+  // Filter out providers that don't support the selected payment channels
+  const supportedProviders = providers.filter(provider => {
+    const mix = normaliseMix(inputs.mix);
+    
+    // Check if provider supports all selected channels
+    const supportsInPerson = mix.inPerson === 0 || 
+      (provider.transaction?.inPerson?.ratePct !== null && provider.transaction?.inPerson?.ratePct !== undefined) ||
+      (provider.fees.pct.inPerson !== null && provider.fees.pct.inPerson !== undefined);
+      
+    const supportsOnline = mix.online === 0 || 
+      (provider.transaction?.online?.ratePct !== null && provider.transaction?.online?.ratePct !== undefined) ||
+      (provider.fees.pct.online !== null && provider.fees.pct.online !== undefined);
+      
+    const supportsPhone = mix.phone === 0 || 
+      (provider.transaction?.phone?.ratePct !== null && provider.transaction?.phone?.ratePct !== undefined) ||
+      (provider.fees.pct.phone !== null && provider.fees.pct.phone !== undefined);
+    
+    return supportsInPerson && supportsOnline && supportsPhone;
+  });
+  
+  const rows = supportedProviders.map((p) => computeCost(p, inputs));
   rows.sort((a, b) => a.totalMonthly - b.totalMonthly);
   return rows;
 }
@@ -415,83 +455,167 @@ interface CardReader extends CostBreakdown {
   url?: string;
   imageUrl?: string;
   transactionFeeRate?: number; // Original transaction fee rate from provider
+  transactionPence?: number; // Fixed pence per transaction
 }
 
 const PROVIDERS: Provider[] = [
   {
     id: "tide",
     name: "Tide Card Reader",
-    deviceCostGBP: 49,
-    transactionFeeRate: 1.50,
+  
+    // Device cost (PAYG, "from £59" ex VAT)
+    deviceCostGBP: 59,
+  
+    // Backward-compat defaults (treat as in-person reader rates)
+    transactionFeeRate: 1.39,  // %
+    transactionPence: 0.05,    // £0.05 fixed per txn (GBP)
+  
     monthlyFeeGBP: 0,
-    fees: {
-      pct: { inPerson: 0.015, online: 0.022, phone: 0.022 },
-      fixed: { inPerson: 0, online: 0, phone: 0 }
+  
+    // New per-channel structure
+    transaction: {
+      inPerson: { ratePct: 0.0139, fixedGBP: 0.05 }, // 1.39% + £0.05
+      online:   { ratePct: null,   fixedGBP: null }, // not specified
+      phone:    { ratePct: null,   fixedGBP: null }  // not specified
     },
+  
+    // (Optional) keep your existing 'fees' block in sync
+    fees: {
+      pct:   { inPerson: 0.0139, online: null, phone: null },
+      fixed: { inPerson: 0.05,   online: null, phone: null }
+    },
+  
+    // Variants / add-ons
+    variants: {
+      tapToPay: { ratePct: 0.0150, fixedGBP: 0.11 },   // 1.5% + £0.11
+      nextDaySettlementBoostGBP: 2.99                  // + VAT / month
+    },
+  
+    // Next-day settlement typically requires the paid boost
     payoutDays: 1,
-    notes: "Low in-person %.",
-    url: "https://www.tide.co/offers/card-reader-getpaidsummer/?gclsrc=aw.ds&utm_source=GoogleAds&utm_medium=CPC&utm_campaign=ACQPOS-UK-EN-DA-PaidSearch-Product-POS-Generic&utm_content=Generic-POS-Device&utm_term=card%20processor&gad_source=1&gad_campaignid=22848929742&gbraid=0AAAAADOJNHcc7VQeGrvZ3p4X7uR_vDI6z&gclid=Cj0KCQjw0NPGBhCDARIsAGAzpp1SWVy7IfAPsu8tvSnB_N5I7do8bqBb6b0b_mCbnBmI04DiQAiExhUaAs1MEALw_wcB",
-    createAccountUrl: "https://web.tide.co/sign-up?af_sub1=63874690-29b9-4354-8baa-ebe076dff255&pid=GoogleAds&af_click_lookback=30d&cmpg=C0001,C0002,C0003,C0004&af_keywords=card%20processor&af_adset=Generic-POS-Device&af_channel=CPC&af_sub3=Cj0KCQjw0NPGBhCDARIsAGAzpp1SWVy7IfAPsu8tvSnB_N5I7do8bqBb6b0b_mCbnBmI04DiQAiExhUaAs1MEALw_wcB&c=ACQPOS-UK-EN-DA-PaidSearch-Product-POS-Generic",
+  
+    notes: "PAYG reader: 1.39% + 5p per in-person transaction. Tap to Pay on iPhone is 1.5% + 11p. Next-day settlement available for £2.99 + VAT/month. Online/phone rates not listed here.",
+  
+    url: "https://www.tide.co/features/card-reader/",
+    createAccountUrl: "https://web.tide.co/sign-up",
     imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/Tide-Reader.webp"
-  },
+  },  
   {
     id: "barclaycard-smartpay-touch",
     name: "Barclaycard Smartpay Touch",
     deviceCostGBP: 0,
-    transactionFeeRate: 1.60,
     monthlyFeeGBP: 29,
-    fees: {
-      pct: { inPerson: 0.016, online: 0.022, phone: 0.022 },
-      fixed: { inPerson: 0, online: 0, phone: 0 }
+  
+    // Backward-compat (defaults to in-person)
+    transactionFeeRate: 1.60,  // %
+    transactionPence: 0,       // £0.00 fixed per txn in-person
+  
+    // Optional per-channel structure (recommended)
+    transaction: {
+      inPerson: { ratePct: 0.0160, fixedGBP: 0.00 }, // 1.60% + £0.00
+      online:   { ratePct: null,   fixedGBP: null }, // typically separate e-com/gateway pricing
+      phone:    { ratePct: null,   fixedGBP: null }  // not publicly standardised; varies by contract
     },
+  
+    // Keep your existing fees block in sync if used
+    fees: {
+      pct:   { inPerson: 0.0160, online: null, phone: null },
+      fixed: { inPerson: 0,      online: null, phone: null }
+    },
+  
     payoutDays: 1,
     url: "https://www.barclaycard.co.uk/business/accepting-payments/card-readers/mobile",
     createAccountUrl: "https://www.barclaycard.co.uk/business/contact-us",
-    imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png"
+    imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png",
+    notes: "Monthly rental £29 + VAT. Typical in-person rate ~1.60% with no fixed pence. Contract/setup fees may apply; online/phone rates handled under separate agreements."
   },
   {
     id: "sumup-air",
     name: "SumUp Air",
     deviceCostGBP: 25,
     monthlyFeeGBP: 0,
-    transactionFeeRate: 1.75,
-    fees: {
-      pct: { inPerson: 0.0169, online: 0.025, phone: 0.025 },
-      fixed: { inPerson: 0, online: 0, phone: 0 }
+  
+    // Backward-compat (defaults to in-person)
+    transactionFeeRate: 1.69,   // %
+    transactionPence: 0,        // £
+  
+    // New per-channel structure
+    transaction: {
+      inPerson: { ratePct: 0.0169, fixedGBP: 0.00 },   // 1.69% + £0.00
+      online:   { ratePct: 0.0250, fixedGBP: 0.00 },   // 2.5%  + £0.00
+      phone:    { ratePct: 0.0295, fixedGBP: 0.25 }    // 2.95% + £0.25 (Virtual Terminal)
     },
-    url: "https://squareup.com/us/en?irgwc=1&utm_medium=affiliate&utm_source=impact_radius&utm_term=_myxdh0bn6gkaxyvezq2dewrscm222vbpgdjjqchc00",
-    createAccountUrl: "https://app.squareup.com/login?lang_code=en-gb",
+  
+    // (Optional) keep your existing fees block in sync
+    fees: {
+      pct:   { inPerson: 0.0169, online: 0.0250, phone: 0.0295 },
+      fixed: { inPerson: 0.00,   online: 0.00,   phone: 0.25 }
+    },
+  
+    payoutDays: 1,
+    notes: "In-person: 1.69% (no fixed). Online: 2.5%. Phone: 2.95% + 25p.",
+    url: "https://www.sumup.com/en-gb/air-contactless-card-reader/",
+    createAccountUrl: "https://www.sumup.com/en-gb/pricing/",
     imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/Square-reader.webp"
-  },
+  },  
   {
     id: "square",
     name: "Square",
     deviceCostGBP: 99,
-    transactionFeeRate: 1.75,
     monthlyFeeGBP: 0,
-    fees: {
-      pct: { inPerson: 0.0175, online: 0.0175, phone: 0.0175 },
-      fixed: { inPerson: 0, online: 0, phone: 0 }
+  
+    // Backward-compat (defaults to in-person)
+    transactionFeeRate: 1.75,  // %
+    transactionPence: 0,       // £
+  
+    // New per-channel structure
+    transaction: {
+      inPerson: { ratePct: 0.0175, fixedGBP: 0.00 }, // 1.75% + £0.00
+      online:   { ratePct: 0.0140, fixedGBP: 0.25 }, // 1.4% + £0.25 (UK cards; non-UK typically 2.5% + £0.25)
+      phone:    { ratePct: 0.0250, fixedGBP: 0.00 }  // 2.5% (Virtual Terminal)
     },
+  
+    // (Optional) keep your existing fees block in sync
+    fees: {
+      pct:   { inPerson: 0.0175, online: 0.0140, phone: 0.0250 },
+      fixed: { inPerson: 0.00,   online: 0.25,   phone: 0.00 }
+    },
+  
     payoutDays: 1,
-    url: "https://squareup.com/us/en?irgwc=1&utm_medium=affiliate&utm_source=impact_radius&utm_term=_myxdh0bn6gkaxyvezq2dewrscm222vbpxxjjqchc00",
-    createAccountUrl: "https://app.squareup.com/login?lang_code=en-gb",
+    notes: "In-person: 1.75% (no fixed). Online (UK cards): 1.4% + 25p; non-UK cards usually 2.5% + 25p. Phone (Virtual Terminal): 2.5%.",
+    url: "https://squareup.com/gb/en/pricing",
+    createAccountUrl: "https://squareup.com/gb/en",
     imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/Square-stand.webp"
-  },
+  },  
   {
     id: "zettle-terminal",
     name: "Zettle Payment Terminal",
     deviceCostGBP: 149,
     monthlyFeeGBP: 0,
-    transactionFeeRate: 1.75,
-    fees: {
-      pct: { inPerson: 0.0175, online: 0.025, phone: 0.025 },
-      fixed: { inPerson: 0, online: 0, phone: 0 }
+  
+    // Backward-compat (defaults to in-person)
+    transactionFeeRate: 1.75,  // %
+    transactionPence: 0,       // £0.00 fixed per txn in-person
+  
+    // Optional per-channel structure (recommended)
+    transaction: {
+      inPerson: { ratePct: 0.0175, fixedGBP: 0.00 }, // 1.75% + £0.00
+      online:   { ratePct: null,   fixedGBP: null }, // handled via PayPal Commerce fees, not Zettle POS
+      phone:    { ratePct: null,   fixedGBP: null }  // no Virtual Terminal support
     },
+  
+    // Keep your existing fees block in sync if used
+    fees: {
+      pct:   { inPerson: 0.0175, online: null, phone: null },
+      fixed: { inPerson: 0,      online: null, phone: null }
+    },
+  
+    payoutDays: 1, // funds land in PayPal Business acct quickly; bank transfer schedules apply
     url: "https://www.zettle.com/gb/payments/terminal",
     createAccountUrl: "https://www.paypal.com/unifiedonboarding/entry?products=ZETTLE&origin=PAYPAL_WEB",
-    imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/iZettle-terminal.webp"
-  }
+    imageUrl: "https://cardmachine.co.uk/wp-content/uploads/2024/01/iZettle-terminal.webp",
+    notes: "In-person: 1.75% (no fixed). No Virtual Terminal; online payments use PayPal fee schedule."
+  }  
 ];
 
 export default function SolarStyleEstimateCard() {
@@ -592,7 +716,7 @@ export default function SolarStyleEstimateCard() {
       annualRevenueGBP: annualRevenueNum,
       avgTransactionGBP: avgTransactionNum,
       mix,
-      amortiseMonths: 12 // Amortize device cost over 12 months
+      amortiseMonths: 0 // Don't amortize device cost - exclude from monthly calculation
     };
 
     // Use the new calculation logic
@@ -601,14 +725,15 @@ export default function SolarStyleEstimateCard() {
     // Add isLowest flag and convert to CardReader format
     const cardReaders: CardReader[] = costBreakdowns.map((breakdown, index) => {
       const provider = PROVIDERS.find(p => p.id === breakdown.providerId);
-      console.log(`Provider ${provider?.name}: transactionFeeRate = ${provider?.transactionFeeRate}`);
+      console.log(`Provider ${provider?.name}: transactionFeeRate = ${provider?.transactionFeeRate}, transactionPence = ${provider?.transactionPence}, breakdown.transactionPence = ${breakdown.transactionPence}, imageUrl = ${provider?.imageUrl}`);
       return {
         ...breakdown,
         isLowest: index === 0, // First item (cheapest) is marked as lowest
         deviceCostGBP: provider ? provider.deviceCostGBP : 0,
         url: provider?.url,
         imageUrl: provider?.imageUrl,
-        transactionFeeRate: provider?.transactionFeeRate || 0 // Use the direct transaction fee rate
+        transactionFeeRate: provider?.transactionFeeRate || 0, // Use the direct transaction fee rate
+        transactionPence: provider?.transactionPence || breakdown.transactionPence // Use provider's pence or breakdown's pence
       };
     });
 
@@ -680,11 +805,11 @@ export default function SolarStyleEstimateCard() {
           <div className="py-2 ">
             {/* Stepper Header */}
             <div className="text-center mb-8">
-              <h2 className="text-xl md:text-3xl font-extrabold tracking-[-0.02em] text-slate-800 m-auto mb-2">
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-[-0.02em] text-slate-800 m-auto mb-2">
                 Let’s get started with your card savings report  </h2>
               <p className="text-md text-slate-600 font-light leading-relaxed"> We’ll calculate the savings based on your card turnover and average transaction size.
               </p>
-            </div>
+            </div> 
 
             {/* Stepper Progress */}
             <div className="flex items-center justify-center mb-8">
@@ -742,7 +867,7 @@ export default function SolarStyleEstimateCard() {
                 <div className="text-center">
                   <div className="max-w-md mx-auto">
                     <label htmlFor="avgTransaction" className="block text-md font-semibold text-slate-700 mb-2">
-                      What's your average transaction value? (£)
+                      What's your estimated average transaction value? (£)
                     </label>
                     <CurrencyInput
                       id="avgTransaction"
@@ -755,7 +880,7 @@ export default function SolarStyleEstimateCard() {
                       }}
                       required
                       error={touched.avgTransaction && (avgTransaction === "" || avgTransactionNum <= 0)}
-                      placeholder="£ 56.24"
+                      placeholder="£ 56"
                     />
                   </div>
                 </div>
