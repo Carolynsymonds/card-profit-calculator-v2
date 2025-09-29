@@ -819,8 +819,8 @@ export default function SolarStyleEstimateCard() {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="px-6 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none"
-                  style={{ borderRadius: '32px', height: '3rem' }}
+                  className="px-6 text-md font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none"
+                  style={{ borderRadius: '32px', height: '3.5rem' }}
                 >
                   Continue <ChevronRight className="ml-2 h-4 w-4 inline" />
                 </button>
@@ -828,10 +828,10 @@ export default function SolarStyleEstimateCard() {
                 <button
                   type="button"
                   onClick={onSubmit}
-                  className="px-6 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none"
-                  style={{ borderRadius: '32px', height: '3rem' }}
+                  className="px-6 text-md font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none"
+                  style={{ borderRadius: '32px', height: '3.5rem' }}
                 >
-                  {isCalculating ? "Calculating..." : "Calculate my savings"}
+                  {isCalculating ? "Calculating..." : "Get Savings Report"}
                   {!isCalculating && <ChevronRight className="ml-2 h-4 w-4 inline" />}
                 </button>
               )}
