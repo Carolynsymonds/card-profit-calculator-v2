@@ -15,8 +15,8 @@ export default function ProviderOfferCardWide({
   compareHref = "https://portal.cardmachine.co.uk/getaquote",
   dealsHref = "https://www.barclaycard.co.uk/business/accepting-payments/card-readers/mobile",
   stats = {
-    cost: { label: "Card Machine Cost", prefix: "£", value: "0" },
-    monthly: { label: "Monthly Fee", prefix: "£", value: "29" },
+    cost: { label: "Card Machine Cost", value: "0", prefix: "£" },
+    monthly: { label: "Monthly Fee", value: "29", prefix: "£" },
     fee: { label: "Transaction Fee (%)", value: "1.60" },
     payout: { label: "Payout Duration", value: "1", suffix: " Day" },
   },
@@ -64,10 +64,10 @@ export default function ProviderOfferCardWide({
               {specList.map((s) => (
                 <div key={s.label + "-v"} className="flex items-center justify-center border-r border-slate-200 p-4 last:border-r-0">
                   <p className="text-xl md:text-2xl font-extrabold text-slate-800">
-                    {s.prefix && <span className="mr-1 align-top text-sm font-bold">{s.prefix}</span>}
+                    {(s as any).prefix && <span className="mr-1 align-top text-sm font-bold">{(s as any).prefix}</span>}
                     {s.value}
-                    {s.suffix && (
-                      <span className="ml-1 align-middle text-sm font-bold">{s.suffix}</span>
+                    {(s as any).suffix && (
+                      <span className="ml-1 align-middle text-sm font-bold">{(s as any).suffix}</span>
                     )}
                   </p>
                 </div>
