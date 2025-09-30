@@ -114,7 +114,17 @@ function AnimatedResultCard({ reader, index, annualRevenue }: { reader: CardRead
 
                 {/* Right actions */}
                 <div className="action-links hidden sm:flex flex-col justify-center items-center gap-[8px] p-[8px] sm:gap-[12px] min-w-[140px] max-w-[180px]">
-                    <a href={reader.url || "#"} target="_blank" rel="noreferrer">
+                    <a 
+                        href={reader.url || "#"} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        data-ga-event="provider_cta_click"
+                        data-ga-provider-id={reader.providerName.toLowerCase().replace(/\s+/g, '-')}
+                        data-ga-provider-name={reader.providerName}
+                        data-ga-cta-type="visit_site"
+                        data-ga-rank={index + 1}
+                        data-ga-section="recommendations"
+                    >
                         <button className="bg-primary hover:brightness-[1.15] active:brightness-[0.91] rounded-[8px] h-[36px] w-[130px] sm:w-[150px] text-white flex flex-row gap-[6px] justify-center items-center shadow-[0_2px_5px_0_rgba(44,56,98,0.09),0_4px_12px_0_rgba(44,56,98,0.20)]">
                             <span className="flex items-center gap-[4px] text-[12px] leading-[18px] font-medium sm:text-[13px]">
                                 Visit Site
@@ -125,7 +135,17 @@ function AnimatedResultCard({ reader, index, annualRevenue }: { reader: CardRead
                         </button>
                     </a>
                     <div className="visit-link text-[12px] leading-[18px] sm:text-[13px] text-[#1a6499cc] font-medium">
-                        <a href={reader.createAccountUrl || reader.url || "#"} target="_blank" rel="noreferrer">
+                        <a 
+                            href={reader.createAccountUrl || reader.url || "#"} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            data-ga-event="provider_cta_click"
+                            data-ga-provider-id={reader.providerName.toLowerCase().replace(/\s+/g, '-')}
+                            data-ga-provider-name={reader.providerName}
+                            data-ga-cta-type="create_account"
+                            data-ga-rank={index + 1}
+                            data-ga-section="recommendations"
+                        >
                             Create Account
                         </a>
                     </div>
@@ -161,7 +181,17 @@ function AnimatedResultCard({ reader, index, annualRevenue }: { reader: CardRead
                 
                 {/* Mobile visit site section */}
                 <div className="flex flex-col items-center gap-3">
-                    <a href={reader.url || "#"} target="_blank" rel="noreferrer">
+                    <a 
+                        href={reader.url || "#"} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        data-ga-event="provider_cta_click"
+                        data-ga-provider-id={reader.providerName.toLowerCase().replace(/\s+/g, '-')}
+                        data-ga-provider-name={reader.providerName}
+                        data-ga-cta-type="visit_site"
+                        data-ga-rank={index + 1}
+                        data-ga-section="recommendations"
+                    >
                         <button className="bg-primary hover:brightness-[1.15] active:brightness-[0.91] rounded-[8px] h-[36px] w-[130px] text-white flex flex-row gap-[6px] justify-center items-center shadow-[0_2px_5px_0_rgba(44,56,98,0.09),0_4px_12px_0_rgba(44,56,98,0.20)]">
                             <span className="flex items-center gap-[4px] text-[12px] leading-[18px] font-medium">
                                 Visit Site
@@ -172,7 +202,17 @@ function AnimatedResultCard({ reader, index, annualRevenue }: { reader: CardRead
                         </button>
                     </a>
                     <div className="text-[12px] leading-[18px] text-[#1a6499cc] font-medium">
-                        <a href={reader.createAccountUrl || reader.url || "#"} target="_blank" rel="noreferrer">
+                        <a 
+                            href={reader.createAccountUrl || reader.url || "#"} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            data-ga-event="provider_cta_click"
+                            data-ga-provider-id={reader.providerName.toLowerCase().replace(/\s+/g, '-')}
+                            data-ga-provider-name={reader.providerName}
+                            data-ga-cta-type="create_account"
+                            data-ga-rank={index + 1}
+                            data-ga-section="recommendations"
+                        >
                             Create Account
                         </a>
                     </div>
