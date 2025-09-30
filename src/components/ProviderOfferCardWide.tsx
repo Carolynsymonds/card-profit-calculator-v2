@@ -8,6 +8,13 @@ import React from "react";
  * TailwindCSS required
  */
 
+interface StatItem {
+  label: string;
+  value: string;
+  prefix?: string;
+  suffix?: string;
+}
+
 export default function ProviderOfferCardWide({
   logo = "https://cardmachine.co.uk/wp-content/uploads/2024/01/Barclay-1.png",
   name = "Barclaycard Smartpay Touch",
@@ -19,7 +26,7 @@ export default function ProviderOfferCardWide({
     monthly: { label: "Monthly Fee", prefix: "£", value: "29" },
     fee: { label: "Transaction Fee (%)", value: "1.60" },
     payout: { label: "Payout Duration", value: "1", suffix: " Day" },
-  },
+  } as { cost: StatItem; monthly: StatItem; fee: StatItem; payout: StatItem },
   contractNote = "*12 months contract",
 }) {
   const specList = [stats.cost, stats.monthly, stats.fee, stats.payout];

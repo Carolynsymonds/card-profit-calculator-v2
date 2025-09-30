@@ -5,7 +5,7 @@ declare global {
   }
 }
 
-const GA4_ID = import.meta.env.VITE_GA4_ID || "G-7ZRZTC4JJ3";
+const GA4_ID = import.meta.env.VITE_GA4_ID || "G-QCKDE865RP";
 
 export function initGA() {
   if (typeof window === "undefined" || !GA4_ID) {
