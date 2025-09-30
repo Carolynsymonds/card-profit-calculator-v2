@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
+import { initGA } from "@/utils/analytics/ga";
 import { bindProviderCtas } from "@/utils/analytics/bindProviderCtas";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
@@ -35,6 +36,7 @@ const UtmTracker = () => {
 
 const App = () => {
   useEffect(() => {
+    initGA();
     bindProviderCtas();
   }, []);
 
